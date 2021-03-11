@@ -1,0 +1,19 @@
+{
+  "name": "@doctor_internet/gmodstore-deployment",
+  "version": "0.0.1",
+  "description": "GitHub Action for deploying to GModStore.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com//JoshPiper/GModStore-Deployment.git"
+  },
+  "keywords": [],
+  "author": "John Internet <internet@doctor-internet.dev>",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "gmodstore-sdk": "^1.1.0",
+    "isnumeric": "^0.3.3"
+  }
+}
