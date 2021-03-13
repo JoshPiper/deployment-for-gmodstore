@@ -59,22 +59,6 @@ async function main(){
 }
 main()
 
-//
-// let versions = new AddonVersionsApi()
-// versions.createAddonVersion(addon, newVersion, {}, (err, data, response) => {
-// 	if (err){
-// 		let details = JSON.parse(response.text)
-// 		if (details.errors !== undefined){
-// 			for (let id of Object.keys(details.errors)){
-// 				core.error(details.errors[id][0])
-// 			}
-// 			core.setFailed("Error(s) occured during upload. See the log for details.")
-// 		} else {
-// 			core.setFailed(`An error occured during upload.\n${err}`)
-// 		}
-// 	}
-// })
-
 
 /***/ }),
 
