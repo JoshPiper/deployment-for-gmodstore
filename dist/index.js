@@ -61,9 +61,23 @@ async function main(){
 	})
 
 	if (response.status !== 200){
-		core.setFailed(`An error occured during upload. Status Code: ${response.status}`)
 		let body = await response.json()
+		core.setFailed(`An error occured during upload. Code ${response.status}, error ${body.message}.`)
 		console.log(body)
+		if (body.errors){
+			for (let id of Object.keys(body.errors)){
+				let errs = body.errors[id]
+				let leng = errs.length
+				if (leng === 1){
+					core.error(`An error occured in the ${file} field`)
+				} else {
+					core.error(`Errors occured in the ${file} field`)
+				}
+				for (let i = 0; i < leng; i++){
+					core.error(errs[i])
+				}
+			}
+		}
 	}
 }
 main()
