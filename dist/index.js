@@ -36,7 +36,7 @@ async function main(){
 		path = inpOrFail("path")
 		type = inpOrFail("type", "stable")
 		changelog = inpOrFail("changelog", "No changelog.")
-		baseurl = inpOrFail("baseurl", "https://gmodstore.com/api/v6/")
+		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v2/")
 	} catch (err){
 		core.setFailed(`An error occured during input processing.\n${err}`)
 		return
@@ -54,8 +54,12 @@ async function main(){
 	let response = await fetch(`${baseurl}addons/${addon}/versions`, {
 		method: "POST",
 		body: newVersion,
-		redirect: 'follow'
+		redirect: 'follow',
+		headers: {
+			"Authorization": `Bearer ${token}`
+		}
 	})
+
 	console.log(response)
 }
 main()
