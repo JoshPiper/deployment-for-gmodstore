@@ -4,6 +4,8 @@ const fetch = require("node-fetch")
 const FormData = require("form-data")
 const isnumeric = require("isnumeric")
 const fs = require("fs")
+const {promisify} = require("util")
+const mime = promisify(require("mime-magic"))
 
 function inpOrFail(input, def = null){
 	let variable = core.getInput(input)
@@ -38,10 +40,30 @@ async function main(){
 	let client = ApiClient.instance
 	client.authentications['bearerAuth'].accessToken = token
 
+	let mimetype
+	try {
+		mimeType = await mime(path)
+	} catch (err){
+		core.setFailed(`An error occured whilst detecting input file mimetype.\n${err}`)
+		return
+	}
+
+	let size
+	try {
+		size = (await fs.promises.stat(path)).size
+	} catch (err){
+		core.setFailed(`An error occured whilst detecting input file size.\n${err}`)
+		return
+	}
+
 	let newVersion = new FormData()
 	newVersion.append("name", version)
 	newVersion.append("changelog", changelog)
-	newVersion.append("file", fs.readFileSync(path))
+	newVersion.append("file", fs.readFileSync(path), {
+		filepath: path,
+		contentType: mimetype,
+		knownLength: size
+	})
 	newVersion.append("release_type", type)
 
 	let response = await fetch(`${baseurl}addons/${addon}/versions`, {
