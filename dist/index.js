@@ -48,7 +48,7 @@ async function main(){
 	let newVersion = new FormData()
 	newVersion.append("name", version)
 	newVersion.append("changelog", changelog)
-	newVersion.append("file", fs.createReadStream(path))
+	newVersion.append("file", fs.readFileSync(path))
 	newVersion.append("release_type", type)
 
 	let response = await fetch(`${baseurl}addons/${addon}/versions`, {
