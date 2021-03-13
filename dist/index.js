@@ -51,7 +51,7 @@ async function main(){
 	newVersion.append("file", fs.createReadStream(path))
 	newVersion.append("release_type", type)
 
-	let response = await fetch(`${baseurl}/addons/${addon}/versions`, {
+	let response = await fetch(`${baseurl}addons/${addon}/versions`, {
 		method: "POST",
 		body: newVersion,
 		redirect: 'follow'
