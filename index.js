@@ -29,7 +29,7 @@ async function main(){
 		path = inpOrFail("path")
 		type = inpOrFail("type", "stable")
 		changelog = inpOrFail("changelog", "No changelog.")
-		baseurl = inpOrFail("baseurl", "https://gmodstore.com/api/v6/")
+		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v2/")
 	} catch (err){
 		core.setFailed(`An error occured during input processing.\n${err}`)
 		return
