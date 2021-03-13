@@ -11,7 +11,7 @@ jobs:
         with:
           token: ${{ secrets.GMS_TOKEN }}
           addon: 6030
-          version: test1
+          version: test2
           type: stable
           changelog: this is a list of changes
           path: test.zip
