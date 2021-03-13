@@ -53,7 +53,8 @@ async function main(){
 
 	let response = await fetch(`${baseurl}/addons/${addon}/versions`, {
 		method: "POST",
-		body: newVersion
+		body: newVersion,
+		redirect: 'follow'
 	})
 	console.log(response)
 }
