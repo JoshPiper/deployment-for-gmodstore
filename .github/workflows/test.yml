@@ -7,7 +7,7 @@ jobs:
     steps:
       - run: base64 /dev/urandom | head -c 1024 > test.txt
       - run: zip test.zip test.txt -@
-      - uses: JoshPiper/GModStore-Deployment@main
+      - uses: JoshPiper/GModStore-Deployment@feat/fetch
         with:
           token: ${{ secrets.GMS_TOKEN }}
           addon: 6030
