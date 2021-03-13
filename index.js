@@ -1,5 +1,6 @@
 const core = require("@actions/core")
-const {ApiClient, AddonVersionsApi, NewAddonVersion} = require("gmodstore-sdk")
+const fetch = require("node-fetch")
+const FormData = require("form-data")
 const isnumeric = require("isnumeric")
 const fs = require("fs")
 
@@ -15,42 +16,71 @@ function inpOrFail(input, def = null){
 	return variable
 }
 
-let addon, token, version, path, type, changelog
-try {
-	addon = inpOrFail("addon")
-	if (!isnumeric(addon)){
-		throw new Error("Input addon was expected to be numeric.")
+async function main(){
+	let addon, token, version, path, type, changelog, baseurl
+	try {
+		addon = inpOrFail("addon")
+		if (!isnumeric(addon)){
+			throw new Error("Input addon was expected to be numeric.")
+		}
+		token = inpOrFail("token")
+		version = inpOrFail("version")
+		path = inpOrFail("path")
+		if (!path.endsWith(".zip")){
+			throw new Error("Input path must refer to a .zip file")
+		}
+		type = inpOrFail("type", "stable")
+		changelog = inpOrFail("changelog", "No changelog.")
+		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v2/")
+	} catch (err){
+		core.setFailed(`An error occured during input processing.\n${err}`)
+		return
 	}
-	token = inpOrFail("token")
-	version = inpOrFail("version")
-	path = inpOrFail("path")
-	type = inpOrFail("type", "stable")
-	changelog = inpOrFail("changelog", "No changelog.")
-} catch (err){
-	core.setFailed(`An error occured during input processing.\n${err}`)
-	return
-}
 
-let client = ApiClient.instance
-client.authentications['bearerAuth'].accessToken = token
+	let size
+	try {
+		size = (await fs.promises.stat(path)).size
+	} catch (err){
+		core.setFailed(`An error occured whilst detecting input file size.\n${err}`)
+		return
+	}
 
-let newVersion = new NewAddonVersion()
-newVersion.name = version
-newVersion.changelog = changelog
-newVersion.file = fs.readFileSync(path)
-newVersion.release_type = type
+	let newVersion = new FormData()
+	newVersion.append("name", version)
+	newVersion.append("changelog", changelog)
+	newVersion.append("file", fs.readFileSync(path), {
+		filepath: path,
+		contentType: "application/zip",
+		knownLength: size
+	})
+	newVersion.append("release_type", type)
 
-let versions = new AddonVersionsApi()
-versions.createAddonVersion(addon, newVersion, {}, (err, data, response) => {
-	if (err){
-		let details = JSON.parse(response.text)
-		if (details.errors !== undefined){
-			for (let id of Object.keys(details.errors)){
-				core.error(details.errors[id][0])
+	let response = await fetch(`${baseurl}addons/${addon}/versions`, {
+		method: "POST",
+		body: newVersion,
+		redirect: 'follow',
+		headers: {
+			"Authorization": `Bearer ${token}`
+		}
+	})
+
+	if (response.status < 200 || response.status >= 300){
+		let body = await response.json()
+		core.setFailed(`An error occured during upload, with HTTP code ${response.status} and message "${body.message}".`)
+		if (body.errors){
+			for (let id of Object.keys(body.errors)){
+				let errs = body.errors[id]
+				let leng = errs.length
+				if (leng === 1){
+					core.error(`An error occured in the ${id} field`)
+				} else {
+					core.error(`Errors occured in the ${id} field`)
+				}
+				for (let i = 0; i < leng; i++){
+					core.error(errs[i])
+				}
 			}
-			core.setFailed("Error(s) occured during upload. See the log for details.")
-		} else {
-			core.setFailed(`An error occured during upload.\n${err}`)
 		}
 	}
-})
+}
+main()

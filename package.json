@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "description": "GitHub Action for deploying to GModStore.",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "compile": "ncc build index.js --license licenses.txt"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com//JoshPiper/GModStore-Deployment.git"
@@ -13,7 +15,8 @@
   "license": "ISC",
   "dependencies": {
     "@actions/core": "^1.2.6",
-    "gmodstore-sdk": "^1.1.0",
-    "isnumeric": "^0.3.3"
+    "form-data": "^4.0.0",
+    "isnumeric": "^0.3.3",
+    "node-fetch": "^2.6.1"
   }
 }

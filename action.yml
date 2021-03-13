@@ -30,3 +30,7 @@ inputs:
   path:
     description: "Path to the addon. This must be in zip format."
     required: true
+  baseurl:
+    description: "API Base URL"
+    required: true
+    default: "https://api.gmodstore.com/v2/"
