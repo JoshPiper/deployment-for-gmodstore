@@ -64,6 +64,8 @@ async function main(){
 		core.setFailed(`An error occured during upload. Status Code: ${response.status}`)
 		let body = response.body
 		console.log(body)
+		console.log(body.body)
+		console.log(body.body.json())
 	}
 }
 main()
