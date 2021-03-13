@@ -68,7 +68,7 @@ async function main(){
 		}
 	})
 
-	if (response.status !== 200){
+	if (response.status < 200 || response.status >= 300){
 		let body = await response.json()
 		core.setFailed(`An error occured during upload, with HTTP code ${response.status} and message "${body.message}".`)
 		if (body.errors){
