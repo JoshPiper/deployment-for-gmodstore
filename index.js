@@ -47,8 +47,12 @@ async function main(){
 	let response = await fetch(`${baseurl}addons/${addon}/versions`, {
 		method: "POST",
 		body: newVersion,
-		redirect: 'follow'
+		redirect: 'follow',
+		headers: {
+			"Authorization": `Bearer ${token}`
+		}
 	})
+
 	console.log(response)
 }
 main()
