@@ -1,5 +1,4 @@
 const core = require("@actions/core")
-const {ApiClient, AddonVersionsApi, NewAddonVersion} = require("gmodstore-sdk")
 const fetch = require("node-fetch")
 const FormData = require("form-data")
 const isnumeric = require("isnumeric")
@@ -37,9 +36,6 @@ async function main(){
 		core.setFailed(`An error occured during input processing.\n${err}`)
 		return
 	}
-
-	let client = ApiClient.instance
-	client.authentications['bearerAuth'].accessToken = token
 
 	let size
 	try {
