@@ -4,8 +4,6 @@ const fetch = require("node-fetch")
 const FormData = require("form-data")
 const isnumeric = require("isnumeric")
 const fs = require("fs")
-const {promisify} = require("util")
-const mime = promisify(require("mime-magic"))
 
 function inpOrFail(input, def = null){
 	let variable = core.getInput(input)
@@ -29,6 +27,9 @@ async function main(){
 		token = inpOrFail("token")
 		version = inpOrFail("version")
 		path = inpOrFail("path")
+		if (!path.endsWith(".zip")){
+			throw new Error("Input path must refer to a .zip file")
+		}
 		type = inpOrFail("type", "stable")
 		changelog = inpOrFail("changelog", "No changelog.")
 		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v2/")
@@ -39,14 +40,6 @@ async function main(){
 
 	let client = ApiClient.instance
 	client.authentications['bearerAuth'].accessToken = token
-
-	let mimetype
-	try {
-		mimeType = await mime(path)
-	} catch (err){
-		core.setFailed(`An error occured whilst detecting input file mimetype.\n${err}`)
-		return
-	}
 
 	let size
 	try {
@@ -61,7 +54,7 @@ async function main(){
 	newVersion.append("changelog", changelog)
 	newVersion.append("file", fs.readFileSync(path), {
 		filepath: path,
-		contentType: mimetype,
+		contentType: "application/zip",
 		knownLength: size
 	})
 	newVersion.append("release_type", type)
