@@ -17,37 +17,40 @@ function inpOrFail(input, def = null){
 	return variable
 }
 
-let addon, token, version, path, type, changelog, baseurl
-try {
-	addon = inpOrFail("addon")
-	if (!isnumeric(addon)){
-		throw new Error("Input addon was expected to be numeric.")
+async function main(){
+	let addon, token, version, path, type, changelog, baseurl
+	try {
+		addon = inpOrFail("addon")
+		if (!isnumeric(addon)){
+			throw new Error("Input addon was expected to be numeric.")
+		}
+		token = inpOrFail("token")
+		version = inpOrFail("version")
+		path = inpOrFail("path")
+		type = inpOrFail("type", "stable")
+		changelog = inpOrFail("changelog", "No changelog.")
+		baseurl = inpOrFail("baseurl", "https://gmodstore.com/api/v6/")
+	} catch (err){
+		core.setFailed(`An error occured during input processing.\n${err}`)
+		return
 	}
-	token = inpOrFail("token")
-	version = inpOrFail("version")
-	path = inpOrFail("path")
-	type = inpOrFail("type", "stable")
-	changelog = inpOrFail("changelog", "No changelog.")
-	baseurl = inpOrFail("baseurl", "https://gmodstore.com/api/v6/")
-} catch (err){
-	core.setFailed(`An error occured during input processing.\n${err}`)
-	return
+
+	let client = ApiClient.instance
+	client.authentications['bearerAuth'].accessToken = token
+
+	let newVersion = new FormData()
+	newVersion.append("name", version)
+	newVersion.append("changelog", changelog)
+	newVersion.append("file", fs.createReadStream(path))
+	newVersion.append("release_type", type)
+
+	let response = await fetch(`${baseurl}/addons/${addon}/versions`, {
+		method: "POST",
+		body: newVersion
+	})
+	console.log(response)
 }
-
-let client = ApiClient.instance
-client.authentications['bearerAuth'].accessToken = token
-
-let newVersion = new FormData()
-newVersion.append("name", version)
-newVersion.append("changelog", changelog)
-newVersion.append("file", fs.createReadStream(path))
-newVersion.append("release_type", type)
-
-let response = await fetch(`${baseurl}/addons/${addon}/versions`, {
-	method: "POST",
-	body: newVersion
-})
-console.log(response)
+main()
 
 //
 // let versions = new AddonVersionsApi()
