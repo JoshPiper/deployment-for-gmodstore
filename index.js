@@ -55,7 +55,7 @@ async function main(){
 
 	if (response.status !== 200){
 		core.setFailed(`An error occured during upload. Status Code: ${response.status}`)
-		let body = response.body()
+		let body = response.body
 		console.log(body)
 	}
 }
