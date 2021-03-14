@@ -19,7 +19,6 @@ jobs:
       - name: Install Dependencies
         run: |
           npm i
-          npm i ncc
       - name: Compile for Distribution
         run: |
           rm -r ./dist/*
