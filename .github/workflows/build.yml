@@ -36,6 +36,7 @@ jobs:
       - name: Check Release
         run: |
           echo "${{ steps.changelog.outputs.skipped }}"
+          echo "${{ toJSON(steps.changelog) }}"
       - name: Create Release
         uses: actions/create-release@v1
         if: ${{ steps.changelog.outputs.skipped == false }}
