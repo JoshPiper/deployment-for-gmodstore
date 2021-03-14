@@ -36,5 +36,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Remove Branch
         run: |
+          git switch ${GITHUB_REF#refs/heads/}
           git branch -d release
           git push origin --delete release
