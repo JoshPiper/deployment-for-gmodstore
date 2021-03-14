@@ -22,7 +22,7 @@ jobs:
       - name: Compile for Distribution
         run: |
           npm run compile
-          mv ./dist .
+          mv ./dist/* .
       - name: Commit Release Version
         uses: EndBug/add-and-commit@v7
         with:
