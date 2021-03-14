@@ -21,9 +21,7 @@ jobs:
           npm i
       - name: Compile for Distribution
         run: |
-          rm -r ./dist/*
           npm run compile
-          rm index.js
           mv ./dist .
       - name: Commit Release Version
         uses: EndBug/add-and-commit@v7
