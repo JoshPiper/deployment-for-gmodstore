@@ -4,7 +4,11 @@
   "description": "GitHub Action for deploying to GModStore.",
   "main": "index.js",
   "scripts": {
-    "compile": "ncc build index.js --license licenses.txt"
+    "clean-dist": "((ls dist > /dev/null 2>&1) && rm -r ./dist) || true",
+    "clean-modules": "((ls node_modules > /dev/null 2>&1) && rm -r ./node_modules) || true",
+    "clean": "npm run clean-dist && npm run clean-modules",
+    "compile": "ncc build index.js --license licenses.txt",
+    "build": "npm run clean && npm i && npm run compile"
   },
   "repository": {
     "type": "git",
