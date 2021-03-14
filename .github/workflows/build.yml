@@ -25,7 +25,7 @@ jobs:
           git config user.name "AutoBuild"
           git config user.email "autobuild@doctor-internet.dev"
           git add --all
-          git commit -m "chore(build): Compiled Code for Distribution"
+          git commit -m "chore(build): Compiled Code for Distribution" || true
           git push
       - name: Build Release
         id: changelog
