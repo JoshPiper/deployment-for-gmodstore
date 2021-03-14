@@ -18,7 +18,7 @@ jobs:
         run: git switch -c release
       - name: Install Dependencies
         run: |
-          npm i -g ncc
+          sudo npm i -g ncc
           npm i
       - name: Compile for Distribution
         run: |
