@@ -27,7 +27,7 @@ jobs:
           git config user.email "autobuild@doctor-internet.dev"
           git add --all
           git commit -m "chore(build): Compiled Code for Distribution"
-          git push -u origin release
+          git push
       - name: Build Release
         uses: TriPSs/conventional-changelog-action@v3
         with:
