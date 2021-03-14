@@ -18,5 +18,8 @@
     "form-data": "^4.0.0",
     "isnumeric": "^0.3.3",
     "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "ncc": "^0.3.6"
   }
 }
