@@ -1,3 +1,12 @@
+## [0.4.1](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.4.0...v0.4.1) (2021-03-14)
+
+
+### Bug Fixes
+
+* **build:** Make the readme updater executable. Whoops. ([4de9dc4](https://github.com//JoshPiper/GModStore-Deployment/commit/4de9dc4589f194b757a09e1af2685af03929e56f))
+
+
+
 # [0.4.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.3.0...v0.4.0) (2021-03-14)
 
 
