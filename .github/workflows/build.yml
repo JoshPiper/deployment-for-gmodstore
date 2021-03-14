@@ -29,8 +29,12 @@ jobs:
           git config user.email "autobuild@doctor-internet.dev"
           git add --all
           git commit -m "build: Compiled Code for Distribution"
-          git push
+          git push -u origin release
       - name: Build Release
         uses: TriPSs/conventional-changelog-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Remove Branch
+        run: |
+          git branch -d release
+          git push origin --delete release
