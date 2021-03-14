@@ -24,14 +24,12 @@ jobs:
           npm run compile
           mv ./dist/* .
       - name: Commit Release Version
-        uses: EndBug/add-and-commit@v7
-        with:
-          author_name: AutoBuild
-          author_email: autobuild@doctor-internet.dev
-          branch: release
-          message: "build: Compiled Code for Distribution"
-          push: true
-          add: "*"
+        run: |
+          git config user.name "AutoBuild"
+          git config user.email "autobuild@doctor-internet.dev"
+          git add --all
+          git commit -m "build: Compiled Code for Distribution"
+          git push
       - name: Build Release
         uses: TriPSs/conventional-changelog-action@v3
         with:
