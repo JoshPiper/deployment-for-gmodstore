@@ -20,6 +20,7 @@ jobs:
         run: |
           sudo npm i -g ncc
           npm i
+          npm -g bin >> $GITHUB_PATH
       - name: Compile for Distribution
         run: |
           rm -r ./dist/*
