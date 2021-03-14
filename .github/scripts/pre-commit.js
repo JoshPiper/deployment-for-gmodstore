@@ -12,5 +12,6 @@ exports.preCommit = async ({tag, version}) => {
 
 	let files = await readdir(basedir)
 	files = files.map(file => join(basedir, file))
-	files.forEach(file => exec(file))
+	files = files.map(file => exec(file))
+	await Promise.all(files)
 }
