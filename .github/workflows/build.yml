@@ -18,6 +18,7 @@ jobs:
           npm i
       - name: Compile for Distribution
         run: |
+          ((ls dist > /dev/null) && rm -r ./dist) || true
           npm run compile
       - name: Commit Release Version
         run: |
