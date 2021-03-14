@@ -1,0 +1,41 @@
+name: Builds
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - feat/build
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Switch Branch
+        run: git switch -c release
+      - name: Install Dependencies
+        run: |
+          npm i -g ncc
+          npm i
+      - name: Compile for Distribution
+        run: |
+          rm -r ./dist/*
+          npm run compile
+          rm index.js
+          mv ./dist .
+      - name: Commit Release Version
+        uses: EndBug/add-and-commit@v7
+        with:
+          author_name: AutoBuild
+          author_email: autobuild@doctor-internet.dev
+          branch: release
+          message: "build: Compiled Code for Distribution"
+          push: true
+          add: "*"
+      - name: Build Release
+        uses: TriPSs/conventional-changelog-action@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
