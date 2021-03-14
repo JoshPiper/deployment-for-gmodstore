@@ -18,9 +18,8 @@ jobs:
         run: git switch -c release
       - name: Install Dependencies
         run: |
-          sudo npm i -g ncc
           npm i
-          npm -g bin >> $GITHUB_PATH
+          npm i ncc
       - name: Compile for Distribution
         run: |
           rm -r ./dist/*
