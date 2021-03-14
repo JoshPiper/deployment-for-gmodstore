@@ -1,4 +1,13 @@
-# 0.3.0 (2021-03-14)
+# [0.4.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.3.0...v0.4.0) (2021-03-14)
+
+
+### Features
+
+* **build:** Automatically update the readme version during the chores. ([#6](https://github.com//JoshPiper/GModStore-Deployment/issues/6)) ([7627ae1](https://github.com//JoshPiper/GModStore-Deployment/commit/7627ae18f5af346a03a99e550d4d75c86aafa396))
+
+
+
+# [0.3.0](https://github.com//JoshPiper/GModStore-Deployment/compare/df334ac61ea79de7a99d9805dd0a50961a9ad384...v0.3.0) (2021-03-14)
 
 
 ### Bug Fixes
