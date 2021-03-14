@@ -16,17 +16,6 @@ jobs:
       - name: Install Dependencies
         run: |
           npm i
-      - name: Compile for Distribution
-        run: |
-          ((ls dist > /dev/null) && rm -r ./dist) || true
-          npm run compile
-      - name: Commit Release Version
-        run: |
-          git config user.name "AutoBuild"
-          git config user.email "autobuild@doctor-internet.dev"
-          git add --all
-          git commit -m "chore(build): Compiled Code for Distribution" || true
-          git push
       - name: Build Release
         id: changelog
         uses: TriPSs/conventional-changelog-action@v3
