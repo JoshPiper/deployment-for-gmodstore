@@ -22,7 +22,6 @@ jobs:
           ((ls dist > /dev/null) && rm -r ./dist) || true
           npm run compile
       - name: Commit Release Version
-        id: changelog
         run: |
           git config user.name "AutoBuild"
           git config user.email "autobuild@doctor-internet.dev"
@@ -30,6 +29,7 @@ jobs:
           git commit -m "chore(build): Compiled Code for Distribution"
           git push
       - name: Build Release
+        id: changelog
         uses: TriPSs/conventional-changelog-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -39,7 +39,7 @@ jobs:
           echo "${{ toJSON(steps.changelog) }}"
       - name: Create Release
         uses: actions/create-release@v1
-        if: ${{ steps.changelog.outputs.skipped == false }}
+        if: ${{ steps.changelog.outputs.skipped == "false" }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
