@@ -1,3 +1,12 @@
+# [0.6.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.5.0...v0.6.0) (2021-05-02)
+
+
+### Features
+
+* added version type parsing from version ([0d110cd](https://github.com//JoshPiper/GModStore-Deployment/commit/0d110cd39d1d121b1a273788397451002bb38c62))
+
+
+
 # [0.5.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.4.1...v0.5.0) (2021-03-14)
 
 
