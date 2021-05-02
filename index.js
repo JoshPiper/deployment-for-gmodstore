@@ -4,6 +4,17 @@ const FormData = require("form-data")
 const isnumeric = require("isnumeric")
 const fs = require("fs")
 
+const versionReg = /(.*?)-(stable|beta|alpha|private|demo)$/gi
+
+function getVersion(version){
+	const result = versionReg.exec(version);
+	if (result !== null) {
+		return [result[1], result[2]]
+	} else {
+		return [version, inpOrFail("type", "stable")]
+	}
+}
+
 function inpOrFail(input, def = null){
 	let variable = core.getInput(input)
 	if (!variable){
@@ -24,12 +35,11 @@ async function main(){
 			throw new Error("Input addon was expected to be numeric.")
 		}
 		token = inpOrFail("token")
-		version = inpOrFail("version")
+		[version, type] = getVersion(inpOrFail("version"))
 		path = inpOrFail("path")
 		if (!path.endsWith(".zip")){
 			throw new Error("Input path must refer to a .zip file")
 		}
-		type = inpOrFail("type", "stable")
 		changelog = inpOrFail("changelog", "No changelog.")
 		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v2/")
 	} catch (err){
