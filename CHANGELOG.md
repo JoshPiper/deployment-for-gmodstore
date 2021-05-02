@@ -3,7 +3,7 @@
 
 ### Features
 
-* added version type parsing from version ([0d110cd](https://github.com//JoshPiper/GModStore-Deployment/commit/0d110cd39d1d121b1a273788397451002bb38c62))
+* added version type parsing from version ([#14](https://github.com//JoshPiper/GModStore-Deployment/issues/14)) ([f8b9e56](https://github.com//JoshPiper/GModStore-Deployment/commit/f8b9e56b61358d86b7b84be63eef51f758230e91))
 
 
 
