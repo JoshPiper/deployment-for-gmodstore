@@ -26,7 +26,7 @@ This token must have versions write permission.
 [**Required**] The version input takes the new version name. This is limited to 8 characters.
 
 ### type
-[**Optional, default: "stable", enum: ["stable", "beta", "alpha", "private", "demo"]**] The type input takes the type of version to upload.
+[**Optional, default: "stable", enum: ["stable", "beta", "alpha", "private", "demo"]**] The type input takes the type of version to upload. If ommitted, uses '-type' version suffix, otherwise falls back to stable.
 
 ### changelog
 [**Optional, default: "No changelog."**] The changelog input takes the markdown formatted changelog.
