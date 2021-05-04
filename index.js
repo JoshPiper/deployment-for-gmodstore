@@ -8,12 +8,9 @@ const versionReg = /(.*?)-(stable|beta|alpha|private|demo)$/gi
 
 function getVersion(version){
 	const result = versionReg.exec(version)
-	console.log(result)
 	if (result !== null) {
-		console.log(result, result[1], result[2])
 		return [result[1], result[2]]
 	} else {
-		console.log(version, inpOrFail("type", "stable"))
 		return [version, inpOrFail("type", "stable")]
 	}
 }
@@ -37,7 +34,7 @@ async function main(){
 		if (!isnumeric(addon)){
 			throw new Error("Input addon was expected to be numeric.")
 		}
-		token = inpOrFail("token")
+		token = inpOrFail("token");
 		[version, type] = getVersion(inpOrFail("version"))
 		path = inpOrFail("path")
 		if (!path.endsWith(".zip")){
