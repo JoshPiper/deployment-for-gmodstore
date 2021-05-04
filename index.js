@@ -7,10 +7,13 @@ const fs = require("fs")
 const versionReg = /(.*?)-(stable|beta|alpha|private|demo)$/gi
 
 function getVersion(version){
-	const result = versionReg.exec(version);
+	const result = versionReg.exec(version)
+	console.log(result)
 	if (result !== null) {
+		console.log(result, result[1], result[2])
 		return [result[1], result[2]]
 	} else {
+		console.log(version, inpOrFail("type", "stable"))
 		return [version, inpOrFail("type", "stable")]
 	}
 }
