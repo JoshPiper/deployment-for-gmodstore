@@ -1,3 +1,12 @@
+## [0.6.2](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.6.1...v0.6.2) (2021-05-04)
+
+
+### Bug Fixes
+
+* Fixed Version-Type error. ([#19](https://github.com//JoshPiper/GModStore-Deployment/issues/19)) ([9e1eca0](https://github.com//JoshPiper/GModStore-Deployment/commit/9e1eca0bd8a278cf507d6d8eec9bef471f29a40b))
+
+
+
 ## [0.6.1](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.6.0...v0.6.1) (2021-05-03)
 
 
@@ -36,15 +45,6 @@
 ### Bug Fixes
 
 * **build:** Make the readme updater executable. Whoops. ([4de9dc4](https://github.com//JoshPiper/GModStore-Deployment/commit/4de9dc4589f194b757a09e1af2685af03929e56f))
-
-
-
-# [0.4.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.3.0...v0.4.0) (2021-03-14)
-
-
-### Features
-
-* **build:** Automatically update the readme version during the chores. ([#6](https://github.com//JoshPiper/GModStore-Deployment/issues/6)) ([7627ae1](https://github.com//JoshPiper/GModStore-Deployment/commit/7627ae18f5af346a03a99e550d4d75c86aafa396))
 
 
 

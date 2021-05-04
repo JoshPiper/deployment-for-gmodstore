@@ -3708,7 +3708,7 @@ const fs = __nccwpck_require__(747)
 const versionReg = /(.*?)-(stable|beta|alpha|private|demo)$/gi
 
 function getVersion(version){
-	const result = versionReg.exec(version);
+	const result = versionReg.exec(version)
 	if (result !== null) {
 		return [result[1], result[2]]
 	} else {
@@ -3735,7 +3735,7 @@ async function main(){
 		if (!isnumeric(addon)){
 			throw new Error("Input addon was expected to be numeric.")
 		}
-		token = inpOrFail("token")
+		token = inpOrFail("token");
 		[version, type] = getVersion(inpOrFail("version"))
 		path = inpOrFail("path")
 		if (!path.endsWith(".zip")){
