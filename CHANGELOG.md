@@ -1,3 +1,12 @@
+## [0.6.3](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.6.2...v0.6.3) (2021-06-10)
+
+
+### Bug Fixes
+
+* guard against an invalid json response. ([#24](https://github.com//JoshPiper/GModStore-Deployment/issues/24)) ([a1272c2](https://github.com//JoshPiper/GModStore-Deployment/commit/a1272c20bfcf052f9798db95c1e16a0220441ab1))
+
+
+
 ## [0.6.2](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.6.1...v0.6.2) (2021-05-04)
 
 
@@ -36,15 +45,6 @@
 ### Features
 
 * **build:** Refactor compiling to be inside the chores, cutting out a useless commit. ([#7](https://github.com//JoshPiper/GModStore-Deployment/issues/7)) ([bd00cf8](https://github.com//JoshPiper/GModStore-Deployment/commit/bd00cf8bcc04f5a075755f4ee6c7fc5e0ccc2fac))
-
-
-
-## [0.4.1](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.4.0...v0.4.1) (2021-03-14)
-
-
-### Bug Fixes
-
-* **build:** Make the readme updater executable. Whoops. ([4de9dc4](https://github.com//JoshPiper/GModStore-Deployment/commit/4de9dc4589f194b757a09e1af2685af03929e56f))
 
 
 
