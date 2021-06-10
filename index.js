@@ -75,7 +75,15 @@ async function main(){
 	})
 
 	if (response.status < 200 || response.status >= 300){
-		let body = await response.json()
+		let body
+		try {
+			body = await response.json()
+		} catch (e){
+			core.warning("An error occured whilst decoding the JSON response.")
+			core.warning("This shouldn't normally happen, and suggests an issue with the API itself.")
+			return
+		}
+
 		core.setFailed(`An error occured during upload, with HTTP code ${response.status} and message "${body.message}".`)
 		if (body.errors){
 			for (let id of Object.keys(body.errors)){
