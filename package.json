@@ -24,6 +24,6 @@
     "node-fetch": "^2.6.2"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.30.0"
+    "@vercel/ncc": "^0.31.0"
   }
 }
