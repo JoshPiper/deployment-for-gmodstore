@@ -21,7 +21,7 @@
     "@actions/core": "^1.6.0",
     "form-data": "^4.0.0",
     "isnumeric": "^0.3.3",
-    "node-fetch": "^2.6.5"
+    "node-fetch": "^2.6.6"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.31.1"
