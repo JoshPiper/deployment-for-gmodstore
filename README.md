@@ -5,7 +5,7 @@ Easily upload an addon build to GModStore.
 ## Usage
 ```yml
 - name: Upload
-  uses: JoshPiper/GModStore-Deployment@v0.7.0
+  uses: JoshPiper/GModStore-Deployment@v1.0.0
   with:
     product: 1000
     token: ${{ secrets.GMS_TOKEN }}

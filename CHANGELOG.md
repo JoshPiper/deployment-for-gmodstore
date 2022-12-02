@@ -1,3 +1,15 @@
+# [1.0.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.7.0...v1.0.0) (2022-12-02)
+
+
+* GMS API v3 (#53) ([a5df42b](https://github.com//JoshPiper/GModStore-Deployment/commit/a5df42b6276ff38c96a4ab5920dac0050e193c47)), closes [#53](https://github.com//JoshPiper/GModStore-Deployment/issues/53)
+
+
+### BREAKING CHANGES
+
+* Addon input has been removed, and replaced with Product.
+
+
+
 # [0.7.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.6.3...v0.7.0) (2022-03-22)
 
 
@@ -31,29 +43,6 @@
 ### Bug Fixes
 
 * **docs:** Update the readme to properly document new feature. ([#17](https://github.com//JoshPiper/GModStore-Deployment/issues/17)) ([d3996eb](https://github.com//JoshPiper/GModStore-Deployment/commit/d3996ebe01565d7493b83c3f3c94fbe8f65c582e))
-
-
-
-# [0.6.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.5.0...v0.6.0) (2021-05-02)
-
-
-### Features
-
-* added version type parsing from version ([#14](https://github.com//JoshPiper/GModStore-Deployment/issues/14)) ([f8b9e56](https://github.com//JoshPiper/GModStore-Deployment/commit/f8b9e56b61358d86b7b84be63eef51f758230e91))
-
-
-
-# [0.5.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.4.1...v0.5.0) (2021-03-14)
-
-
-### Bug Fixes
-
-* **build:** Re-add the execute bit for the build script. ([6d16aef](https://github.com//JoshPiper/GModStore-Deployment/commit/6d16aef9fa40c4687dca014b37b5173b1f9acce4))
-
-
-### Features
-
-* **build:** Refactor compiling to be inside the chores, cutting out a useless commit. ([#7](https://github.com//JoshPiper/GModStore-Deployment/issues/7)) ([bd00cf8](https://github.com//JoshPiper/GModStore-Deployment/commit/bd00cf8bcc04f5a075755f4ee6c7fc5e0ccc2fac))
 
 
 
