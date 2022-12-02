@@ -1,0 +1,24 @@
+name: Test
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: |
+          npm i
+          npm run build
+      - name: list
+        run: ls ./dist
+      - name: Test
+        uses: ./dist/index.js
+        with:
+          addon: ${{ secrets.GMS_TEST_ADDON }}
+          token: ${{ secrets.GMS_V3_TOKEN }}
+          version: 1.0.0
+          path: addon.zip
