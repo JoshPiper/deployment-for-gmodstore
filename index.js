@@ -1,7 +1,6 @@
 const core = require("@actions/core")
 const fetch = require("node-fetch")
 const FormData = require("form-data")
-const isnumeric = require("isnumeric")
 const fs = require("fs")
 
 const versionReg = /(.*?)-(stable|beta|alpha|private|demo)$/gi
@@ -31,9 +30,6 @@ async function main(){
 	let addon, token, version, path, type, changelog, baseurl
 	try {
 		addon = inpOrFail("addon")
-		if (!isnumeric(addon)){
-			throw new Error("Input addon was expected to be numeric.")
-		}
 		token = inpOrFail("token");
 		[version, type] = getVersion(inpOrFail("version"))
 		path = inpOrFail("path")
