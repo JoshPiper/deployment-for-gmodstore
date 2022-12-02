@@ -1,7 +1,6 @@
 const core = require("@actions/core")
 const fetch = require("node-fetch")
 const FormData = require("form-data")
-const isnumeric = require("isnumeric")
 const fs = require("fs")
 
 const versionReg = /(.*?)-(stable|beta|alpha|private|demo)$/gi
@@ -28,12 +27,9 @@ function inpOrFail(input, def = null){
 }
 
 async function main(){
-	let addon, token, version, path, type, changelog, baseurl
+	let product, token, version, path, type, changelog, baseurl
 	try {
-		addon = inpOrFail("addon")
-		if (!isnumeric(addon)){
-			throw new Error("Input addon was expected to be numeric.")
-		}
+		product = inpOrFail("product")
 		token = inpOrFail("token");
 		[version, type] = getVersion(inpOrFail("version"))
 		path = inpOrFail("path")
@@ -41,7 +37,7 @@ async function main(){
 			throw new Error("Input path must refer to a .zip file")
 		}
 		changelog = inpOrFail("changelog", "No changelog.")
-		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v2/")
+		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v3/")
 	} catch (err){
 		core.setFailed(`An error occured during input processing.\n${err}`)
 		return
@@ -63,9 +59,9 @@ async function main(){
 		contentType: "application/zip",
 		knownLength: size
 	})
-	newVersion.append("release_type", type)
+	newVersion.append("releaseType", type)
 
-	let response = await fetch(`${baseurl}addons/${addon}/versions`, {
+	let response = await fetch(`${baseurl}products/${product}/versions`, {
 		method: "POST",
 		body: newVersion,
 		redirect: 'follow',

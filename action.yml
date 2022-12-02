@@ -6,21 +6,21 @@ branding:
   color: blue
 
 runs:
-  using: node12
+  using: node16
   main: "dist/index.js"
 
 inputs:
   token:
     description: "GModStore API Token"
     required: true
-  addon:
+  product:
     description: "The ID of the addon to deploy to."
     required: true
   version:
     description: "The new version name to deploy."
     required: true
   type:
-    description: "The type of version to deploy. Can be stable, beta, alpha, private or demo. If ommitted, uses '-type' at the end of version string (if it exists), otherwise uses stable"
+    description: "The type of version to deploy. Can be stable, beta, alpha, private or demo. If omitted, uses '-type' at the end of version string (if it exists), otherwise uses stable"
     required: false
     default: "stable"
   changelog:
@@ -33,4 +33,4 @@ inputs:
   baseurl:
     description: "API Base URL"
     required: true
-    default: "https://api.gmodstore.com/v2/"
+    default: "https://api.gmodstore.com/v3/"

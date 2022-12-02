@@ -13,14 +13,10 @@ jobs:
         run: |
           npm i
           npm run build
-      - name: list
-        run: ls ./dist
-      - name: copy metadata
-        run: cp action.yml dist/action.yml
       - name: Test
-        uses: ./dist/index.js
+        uses: ./
         with:
-          addon: ${{ secrets.GMS_TEST_ADDON }}
+          product: ${{ secrets.GMS_TEST_ADDON }}
           token: ${{ secrets.GMS_V3_TOKEN }}
           version: 1.0.0
-          path: addon.zip
+          path: tests/test.zip

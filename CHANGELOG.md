@@ -43,3 +43,17 @@
 
 
 
+# [0.5.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.4.1...v0.5.0) (2021-03-14)
+
+
+### Bug Fixes
+
+* **build:** Re-add the execute bit for the build script. ([6d16aef](https://github.com//JoshPiper/GModStore-Deployment/commit/6d16aef9fa40c4687dca014b37b5173b1f9acce4))
+
+
+### Features
+
+* **build:** Refactor compiling to be inside the chores, cutting out a useless commit. ([#7](https://github.com//JoshPiper/GModStore-Deployment/issues/7)) ([bd00cf8](https://github.com//JoshPiper/GModStore-Deployment/commit/bd00cf8bcc04f5a075755f4ee6c7fc5e0ccc2fac))
+
+
+
