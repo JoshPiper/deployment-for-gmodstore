@@ -3674,7 +3674,7 @@ module.exports = JSON.parse('{"application/1d-interleaved-parityfec":{"source":"
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("fs");;
+module.exports = require("fs");
 
 /***/ }),
 
@@ -3682,7 +3682,7 @@ module.exports = require("fs");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("http");;
+module.exports = require("http");
 
 /***/ }),
 
@@ -3690,7 +3690,7 @@ module.exports = require("http");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("https");;
+module.exports = require("https");
 
 /***/ }),
 
@@ -3698,7 +3698,7 @@ module.exports = require("https");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("os");;
+module.exports = require("os");
 
 /***/ }),
 
@@ -3706,7 +3706,7 @@ module.exports = require("os");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("path");;
+module.exports = require("path");
 
 /***/ }),
 
@@ -3714,7 +3714,7 @@ module.exports = require("path");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("stream");;
+module.exports = require("stream");
 
 /***/ }),
 
@@ -3722,7 +3722,7 @@ module.exports = require("stream");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("url");;
+module.exports = require("url");
 
 /***/ }),
 
@@ -3730,7 +3730,7 @@ module.exports = require("url");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("util");;
+module.exports = require("util");
 
 /***/ }),
 
@@ -3738,7 +3738,7 @@ module.exports = require("util");;
 /***/ ((module) => {
 
 "use strict";
-module.exports = require("zlib");;
+module.exports = require("zlib");
 
 /***/ })
 
@@ -3777,7 +3777,9 @@ module.exports = require("zlib");;
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
-/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";/************************************************************************/
+/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
+/******/ 	
+/************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
@@ -3824,7 +3826,7 @@ async function main(){
 			throw new Error("Input path must refer to a .zip file")
 		}
 		changelog = inpOrFail("changelog", "No changelog.")
-		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v2/")
+		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v3/")
 	} catch (err){
 		core.setFailed(`An error occured during input processing.\n${err}`)
 		return
@@ -3846,9 +3848,9 @@ async function main(){
 		contentType: "application/zip",
 		knownLength: size
 	})
-	newVersion.append("release_type", type)
+	newVersion.append("releaseType", type)
 
-	let response = await fetch(`${baseurl}addons/${addon}/versions`, {
+	let response = await fetch(`${baseurl}products/${addon}/versions`, {
 		method: "POST",
 		body: newVersion,
 		redirect: 'follow',
