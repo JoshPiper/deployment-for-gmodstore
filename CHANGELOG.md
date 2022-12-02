@@ -1,3 +1,12 @@
+# [0.7.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.6.3...v0.7.0) (2022-03-22)
+
+
+### Features
+
+* Display the error if a json decode error occurs. ([f381693](https://github.com//JoshPiper/GModStore-Deployment/commit/f3816935da8225f1381e14a7c4e47984c7bb4241))
+
+
+
 ## [0.6.3](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.6.2...v0.6.3) (2021-06-10)
 
 
