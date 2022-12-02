@@ -81,6 +81,7 @@ async function main(){
 		} catch (e){
 			core.warning("An error occured whilst decoding the JSON response.")
 			core.warning("This shouldn't normally happen, and suggests an issue with the API itself.")
+			core.error(e)
 			return
 		}
 
