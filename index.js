@@ -41,7 +41,7 @@ async function main(){
 			throw new Error("Input path must refer to a .zip file")
 		}
 		changelog = inpOrFail("changelog", "No changelog.")
-		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v2/")
+		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v3/")
 	} catch (err){
 		core.setFailed(`An error occured during input processing.\n${err}`)
 		return
@@ -63,9 +63,9 @@ async function main(){
 		contentType: "application/zip",
 		knownLength: size
 	})
-	newVersion.append("release_type", type)
+	newVersion.append("releaseType", type)
 
-	let response = await fetch(`${baseurl}addons/${addon}/versions`, {
+	let response = await fetch(`${baseurl}products/${addon}/versions`, {
 		method: "POST",
 		body: newVersion,
 		redirect: 'follow',
