@@ -33,4 +33,4 @@ inputs:
   baseurl:
     description: "API Base URL"
     required: true
-    default: "https://api.gmodstore.com/v2/"
+    default: "https://api.gmodstore.com/v3/"
