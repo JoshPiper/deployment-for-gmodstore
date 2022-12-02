@@ -13,10 +13,10 @@ jobs:
         run: |
           npm i
           npm run build
+      - name: copy metadata
+        run: cp ./action.yml ./dist/action.yml
       - name: list
         run: ls ./dist
-      - name: copy metadata
-        run: cp action.yml dist/action.yml
       - name: Test
         uses: ./dist/index.js
         with:
