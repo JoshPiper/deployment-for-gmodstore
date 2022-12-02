@@ -7,7 +7,7 @@ Easily upload an addon build to GModStore.
 - name: Upload
   uses: JoshPiper/GModStore-Deployment@v0.7.0
   with:
-    addon: 1000
+    product: 1000
     token: ${{ secrets.GMS_TOKEN }}
     version: 1.0.5
     path: addon.zip
@@ -19,8 +19,8 @@ Easily upload an addon build to GModStore.
 [**Required**] The token input is used to pass your GMS API token.
 This token must have versions write permission.
 
-### addon
-[**Required**] The addon input is used to pass the addon ID, of the addon to upload to.
+### product
+[**Required**] The product input is used to pass the addon ID, of the addon to upload to.
 
 ### version
 [**Required**] The version input takes the new version name. This is limited to 8 characters.

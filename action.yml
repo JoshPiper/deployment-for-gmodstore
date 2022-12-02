@@ -13,7 +13,7 @@ inputs:
   token:
     description: "GModStore API Token"
     required: true
-  addon:
+  product:
     description: "The ID of the addon to deploy to."
     required: true
   version:
