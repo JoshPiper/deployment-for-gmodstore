@@ -19,6 +19,6 @@ jobs:
         uses: ./dist/index.js
         with:
           addon: ${{ secrets.GMS_TEST_ADDON }}
-          token: ${{ secrets.GMS_TOKEN }}
+          token: ${{ secrets.GMS_V3_TOKEN }}
           version: 1.0.0
           path: addon.zip
