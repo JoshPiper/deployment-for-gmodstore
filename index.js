@@ -27,9 +27,9 @@ function inpOrFail(input, def = null){
 }
 
 async function main(){
-	let addon, token, version, path, type, changelog, baseurl
+	let product, token, version, path, type, changelog, baseurl
 	try {
-		addon = inpOrFail("addon")
+		product = inpOrFail("product")
 		token = inpOrFail("token");
 		[version, type] = getVersion(inpOrFail("version"))
 		path = inpOrFail("path")
@@ -61,7 +61,7 @@ async function main(){
 	})
 	newVersion.append("releaseType", type)
 
-	let response = await fetch(`${baseurl}products/${addon}/versions`, {
+	let response = await fetch(`${baseurl}products/${product}/versions`, {
 		method: "POST",
 		body: newVersion,
 		redirect: 'follow',
