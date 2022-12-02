@@ -18,7 +18,7 @@ jobs:
       - name: list
         run: ls ./dist
       - name: Test
-        uses: ./dist/index.js
+        uses: ./dist/
         with:
           addon: ${{ secrets.GMS_TEST_ADDON }}
           token: ${{ secrets.GMS_V3_TOKEN }}
