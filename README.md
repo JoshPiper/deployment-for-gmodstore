@@ -35,4 +35,4 @@ This token must have versions write permission.
 [**Required**] The path input takes the path to the addon. This must be a zip file.
 
 ### baseurl
-[**Optional, default: "https://api.gmodstore.com/v3/"**] The baseurl path allows overwriting the API's base url, for uploading with a different api version.
+[**Optional, default: "https://gmodstore.com/api/v3/"**] The baseurl path allows overwriting the API's base url, for uploading with a different api version.

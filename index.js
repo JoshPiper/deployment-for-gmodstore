@@ -37,7 +37,7 @@ async function main(){
 			throw new Error("Input path must refer to a .zip file")
 		}
 		changelog = inpOrFail("changelog", "No changelog.")
-		baseurl = inpOrFail("baseurl", "https://api.gmodstore.com/v3/")
+		baseurl = inpOrFail("baseurl", "https://gmodstore.com/api/v3/")
 	} catch (err){
 		core.setFailed(`An error occured during input processing.\n${err}`)
 		return
