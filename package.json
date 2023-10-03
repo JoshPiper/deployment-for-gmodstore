@@ -1,5 +1,5 @@
 {
-  "name": "@doctor_internet/gmodstore-deployment",
+  "name": "@doctor_internet/deployment-for-gmodstore",
   "version": "1.0.0",
   "description": "GitHub Action for deploying to GModStore.",
   "main": "index.js",
