@@ -1,39 +1,28 @@
 # GModStore Deployment Action
 
-Easily upload an addon build to GModStore.
+Easily upload an addon build to GmodStore.
 
 ## Usage
 ```yml
 - name: Upload
-  uses: JoshPiper/deployment-for-gmodstore@v1.0.1
+  uses: JoshPiper/deployment-for-gmodstore@2.0.0
   with:
-    product: 1000
-    token: ${{ secrets.GMS_TOKEN }}
-    version: 1.0.5
-    path: addon.zip
+    product: "00000000-0000-0000-0000-000000000000"
+    token: "${{ secrets.GMS_TOKEN }}"
+    version: "1.0.0"
+    path: "addon.zip"
 ```
 
 ## Inputs
 
-### token
-[**Required**] The token input is used to pass your GMS API token.
-This token must have versions write permission.
-
-### product
-[**Required**] The product input is used to pass the addon ID, of the addon to upload to.
-
-### version
-[**Required**] The version input takes the new version name. This is limited to 8 characters.
-
-### type
-[**Optional, default: "stable", enum: ["stable", "beta", "alpha", "private", "demo"]**] The type input takes the type of version to upload. If ommitted, uses '-type' version suffix, otherwise falls back to stable.
-
-### changelog
-[**Optional, default: "No changelog."**] The changelog input takes the markdown formatted changelog.
-
-### path
-[**Required**] The path input takes the path to the addon. This must be a zip file.
-
-### baseurl
-[**Optional, default: "https://gmodstore.com/api/v3/"**] The baseurl path allows overwriting the API's base url, for uploading with a different api version.
-
+| Input     | State                                                                     | Description                                                                                                                                                                             |
+|-----------|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| token     |                                                                           | Your GmodStore API Token.<br>This token must have versions write permission.                                                                                                            |
+| product   |                                                                           | The product ID, found in the product dashboard.                                                                                                                                         |
+| path      |                                                                           | Path to zip file to upload.                                                                                                                                                             |
+| version   |                                                                           | The new version name to upload.<br>This input is limited to 80 characters.<br>If type is not set, this input is parsed as a SemVer to find a pre-release suffix to use as type instead. |
+| type      | Default: "stable"<br>Enum: ["stable", "beta", "alpha", "private", "demo"] | Type of version to release.                                                                                                                                                             |
+| changelog | Default: "No changelog provided."                                         | Markdown formatted changelog.                                                                                                                                                           |
+| baseurl   | Default: https://api.gmodstore.com/v3/                                    | Base API URL, for mocking or local proxy.                                                                                                                                               |
+| dryrun    | Default: FALSE                                                            | If we should dry-run and handle all the prep, but refrain from the actual upload.                                                                                                       |
+| nointuit  | Default: FALSE                                                            | Disable attempting to intuit the type field from the version field.                                                                                                                     |

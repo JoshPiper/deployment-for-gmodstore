@@ -1,0 +1,9 @@
+{
+	"extends": "@tsconfig/node20/tsconfig.json",
+
+	"files": [
+		"index.ts",
+		"main.ts",
+		"utils.ts"
+	]
+}
