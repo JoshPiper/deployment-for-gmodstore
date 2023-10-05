@@ -10679,7 +10679,6 @@ async function main() {
         let response = await (0, node_fetch_1.default)(`${baseUrl}products/${product}/versions`, {
             method: "POST",
             body: stream_1.Readable.from(encoder),
-            redirect: 'follow',
             headers: {
                 "Authorization": `Bearer ${token}`,
                 ...encoder.headers
