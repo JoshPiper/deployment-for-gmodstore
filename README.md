@@ -26,3 +26,4 @@ Easily upload an addon build to GmodStore.
 | baseurl   | Default: https://api.gmodstore.com/v3/                                    | Base API URL, for mocking or local proxy.                                                                                                                                               |
 | dryrun    | Default: FALSE                                                            | If we should dry-run and handle all the prep, but refrain from the actual upload.                                                                                                       |
 | nointuit  | Default: FALSE                                                            | Disable attempting to intuit the type field from the version field.                                                                                                                     |
+
