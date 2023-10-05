@@ -15,8 +15,8 @@
     "release": "npx semantic-release"
   },
   "repository": {
-    "type": "git",
-    "url": "https://github.com//JoshPiper/GModStore-Deployment.git"
+    "type": "github",
+    "url": "https://github.com/JoshPiper/GModStore-Deployment.git"
   },
   "keywords": [],
   "author": "John Internet <internet@doctor-internet.dev>",
