@@ -4,11 +4,14 @@
   "description": "GitHub Action for deploying to GModStore.",
   "main": "index.js",
   "scripts": {
-    "clean-dist": "((ls dist > /dev/null 2>&1) && rm -r ./dist) || true",
-    "clean-modules": "((ls node_modules > /dev/null 2>&1) && rm -r ./node_modules) || true",
-    "clean": "npm run clean-dist && npm run clean-modules",
-    "compile": "ncc build index.js --license licenses.txt",
-    "build": "npm run clean && npm i && npm run compile"
+    "build:source": "npx ncc build index.ts --license licenses.txt",
+    "build:source:clean": "rm dist/index.js dist/licenses.txt; rmdir dist",
+    "build:source:watch": "npx ncc build --watch index.ts",
+    "build:modules:clean": "((ls node_modules > /dev/null 2>&1) && rm -r ./node_modules) || true",
+    "build": "npm run build:source",
+    "build:full": "npm run build:modules:clean && npm run build:source:clean && npm ci && npm run build:source",
+    "test": "npm run test:utils",
+    "test:utils": "mocha -r ts-node/register test/utils.spec.ts"
   },
   "repository": {
     "type": "git",
