@@ -11,7 +11,8 @@
     "build": "npm run build:source",
     "build:full": "npm run build:modules:clean && npm run build:source:clean && npm ci && npm run build:source",
     "test": "npm run test:utils",
-    "test:utils": "mocha -r ts-node/register test/utils.spec.ts"
+    "test:utils": "mocha -r ts-node/register test/utils.spec.ts",
+    "release": "npx semantic-release"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@semantic-release/exec": "^6.0.3",
     "@tsconfig/node20": "^20.1.2",
     "@types/chai": "^4.3.6",
     "@types/mocha": "^10.0.2",
