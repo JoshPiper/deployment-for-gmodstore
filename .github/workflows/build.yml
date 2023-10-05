@@ -18,6 +18,8 @@ jobs:
         run: npm ci
       - name: Build Release
         run: npm run release
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 #      - name: Create Release
 #        uses: actions/create-release@v1
 #        if: ${{ steps.changelog.outputs.skipped == 'false' }}
