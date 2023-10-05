@@ -22,7 +22,7 @@ module.exports = {
 			prepareCmd: "npm run build"
 		}],
 		["@semantic-release/exec", {
-			prepareCmd: 'perl -pi -e "s/JoshPiper\\/deployment-for-gmodstore\\@([\\w.]+)?/JoshPiper\\/deployment-for-gmodstore\\@${nextRelease.version}/g" README.md'
+			prepareCmd: 'perl -pi -e "s/JoshPiper\\/deployment-for-gmodstore\\@([\\w.]+)?/JoshPiper\\/deployment-for-gmodstore\\@v${nextRelease.version}/g" README.md'
 		}],
 		["@semantic-release/exec", {
 			prepareCmd: 'git commit -am "chore: Prepare ${nextRelease.version}" && git push'
