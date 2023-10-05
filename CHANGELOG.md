@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com//JoshPiper/GModStore-Deployment/compare/v1.0.0...v1.0.1) (2023-07-23)
+
+
+### Bug Fixes
+
+* Corrected API Route. ([167d55e](https://github.com//JoshPiper/GModStore-Deployment/commit/167d55e3eb29c53fa45098c711dd29753dc0fcfd))
+
+
+
 # [1.0.0](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.7.0...v1.0.0) (2022-12-02)
 
 
@@ -34,15 +43,6 @@
 ### Bug Fixes
 
 * Fixed Version-Type error. ([#19](https://github.com//JoshPiper/GModStore-Deployment/issues/19)) ([9e1eca0](https://github.com//JoshPiper/GModStore-Deployment/commit/9e1eca0bd8a278cf507d6d8eec9bef471f29a40b))
-
-
-
-## [0.6.1](https://github.com//JoshPiper/GModStore-Deployment/compare/v0.6.0...v0.6.1) (2021-05-03)
-
-
-### Bug Fixes
-
-* **docs:** Update the readme to properly document new feature. ([#17](https://github.com//JoshPiper/GModStore-Deployment/issues/17)) ([d3996eb](https://github.com//JoshPiper/GModStore-Deployment/commit/d3996ebe01565d7493b83c3f3c94fbe8f65c582e))
 
 
 
