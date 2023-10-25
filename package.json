@@ -23,7 +23,7 @@
   "license": "ISC",
   "dependencies": {
     "@actions/core": "^1.10.1",
-    "form-data-encoder": "^1.9.0",
+    "form-data-encoder": "^4.0.2",
     "formdata-node": "^4.4.1",
     "node-fetch": "^2.7.0",
     "semver": "^7.5.4",
