@@ -38,7 +38,7 @@
     "@types/node-fetch": "^2.6.6",
     "@types/semver": "^7.5.3",
     "@types/sinon": "^10.0.19",
-    "@types/uuid": "^9.0.5",
+    "@types/uuid": "^9.0.6",
     "@vercel/ncc": "^0.38.0",
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
