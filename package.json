@@ -41,7 +41,7 @@
     "@types/uuid": "^9.0.8",
     "@vercel/ncc": "^0.38.1",
     "chai": "^5.0.3",
-    "mocha": "^10.2.0",
+    "mocha": "^10.3.0",
     "nyc": "^15.1.0",
     "semantic-release": "^23.0.2",
     "sinon": "^17.0.1",
