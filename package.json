@@ -43,7 +43,7 @@
     "chai": "^5.1.0",
     "mocha": "^10.3.0",
     "nyc": "^15.1.0",
-    "semantic-release": "^23.0.2",
+    "semantic-release": "^23.0.5",
     "sinon": "^17.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
