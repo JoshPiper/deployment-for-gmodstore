@@ -1,6 +1,6 @@
-name: "GModStore Deployment"
-description: "Deploy scripts to GModStore"
-author: "John Internet <internet@doctor-internet.dev>"
+name: "Deployment-For-gmodstore"
+description: "Deploy scripts to gmodstore"
+author: "Joshua Piper <gms-deployment@doctor-internet.dev>"
 branding:
   icon: check
   color: blue
