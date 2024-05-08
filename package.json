@@ -26,7 +26,7 @@
     "form-data-encoder": "^1.9.0",
     "formdata-node": "^6.0.3",
     "node-fetch": "^2.7.0",
-    "semver": "^7.6.0",
+    "semver": "^7.6.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
