@@ -27,7 +27,7 @@
     "formdata-node": "^6.0.3",
     "node-fetch": "^2.7.0",
     "semver": "^7.6.2",
-    "uuid": "^9.0.1"
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@semantic-release/exec": "^6.0.3",
@@ -38,7 +38,7 @@
     "@types/node-fetch": "^2.6.6",
     "@types/semver": "^7.5.8",
     "@types/sinon": "^17.0.3",
-    "@types/uuid": "^9.0.8",
+    "@types/uuid": "^10.0.0",
     "@vercel/ncc": "^0.38.1",
     "chai": "^5.1.1",
     "mocha": "^10.4.0",
