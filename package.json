@@ -44,7 +44,7 @@
     "mocha": "^10.4.0",
     "nyc": "^15.1.0",
     "semantic-release": "^23.0.8",
-    "sinon": "^17.0.1",
+    "sinon": "^18.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.3",
     "yaml": "^2.4.5"
