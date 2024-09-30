@@ -39,7 +39,7 @@
     "@types/semver": "^7.5.8",
     "@types/sinon": "^17.0.3",
     "@types/uuid": "^10.0.0",
-    "@vercel/ncc": "^0.38.1",
+    "@vercel/ncc": "^0.38.2",
     "chai": "^5.1.1",
     "mocha": "^10.6.0",
     "nyc": "^17.1.0",
