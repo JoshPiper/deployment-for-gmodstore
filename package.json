@@ -30,7 +30,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@semantic-release/exec": "^7.0.3",
+    "@semantic-release/exec": "^7.1.0",
     "@tsconfig/node20": "^20.1.6",
     "@types/chai": "^5.0.1",
     "@types/mocha": "^10.0.10",
