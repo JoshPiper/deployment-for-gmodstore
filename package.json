@@ -10,8 +10,9 @@
     "build:modules:clean": "((ls node_modules > /dev/null 2>&1) && rm -r ./node_modules) || true",
     "build": "npm run build:source",
     "build:full": "npm run build:modules:clean && npm run build:source:clean && npm ci && npm run build:source",
-    "test": "npm run test:utils",
+    "test": "npm run test:utils && npm run test:integration",
     "test:utils": "mocha -r ts-node/register test/utils.spec.ts",
+    "test:integration": "mocha -r ts-node/register test/integration.spec.ts",
     "release": "npx semantic-release"
   },
   "repository": {
