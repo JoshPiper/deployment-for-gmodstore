@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-// noinspection JSIgnoredPromiseFromCall
 
 import {main} from "./main"
-main()
+main().catch(err => {
+	console.error(`An unexpected error occured.\n${err}`)
+	process.exit(1)
+})
