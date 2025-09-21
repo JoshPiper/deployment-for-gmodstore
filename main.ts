@@ -33,8 +33,6 @@ async function main(){
 		return
 	}
 
-	FormData
-
 	let newVersion = new FormData()
 	newVersion.append("name", version)
 	newVersion.append("changelog", changelog)
