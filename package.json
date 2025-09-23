@@ -28,7 +28,7 @@
     "formdata-node": "^6.0.3",
     "node-fetch": "^2.7.0",
     "semver": "^7.7.2",
-    "uuid": "^11.1.0"
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@semantic-release/exec": "^7.1.0",
