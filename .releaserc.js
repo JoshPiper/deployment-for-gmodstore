@@ -24,7 +24,7 @@ module.exports = {
 			prepareCmd: 'perl -pi -e "s/JoshPiper\\/deployment-for-gmodstore\\@([\\w.]+)?/JoshPiper\\/deployment-for-gmodstore\\@v${nextRelease.version}/g" README.md'
 		}],
 		["@semantic-release/exec", {
-			prepareCmd: 'git commit -am "release(v${nextRelease.version}: Prepare Release" && git push'
+			prepareCmd: 'git commit -am "release(v${nextRelease.version}): Prepare Release" && git push'
 		}],
 		["@semantic-release/release-notes-generator", {
 			"parserOpts": {
