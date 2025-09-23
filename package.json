@@ -12,7 +12,7 @@
     "build:full": "npm run build:modules:clean && npm run build:source:clean && npm ci && npm run build:source",
     "test": "npm run test:utils",
     "test:utils": "mocha -r ts-node/register test/utils.spec.ts",
-    "release": "npx semantic-release"
+    "release": "npx semantic-release -d"
   },
   "repository": {
     "type": "github",
