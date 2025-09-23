@@ -1,7 +1,7 @@
 module.exports = {
 	"branches": [
 		"main",
-		"build/semantic-release"
+		"build/npm-update"
 	],
 	"plugins": [
 		["@semantic-release/commit-analyzer", {
