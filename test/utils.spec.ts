@@ -1,7 +1,11 @@
+import {mkdirSync, mkdtempSync, rmSync} from "node:fs"
+import {tmpdir} from "node:os"
+import {join} from "node:path"
 import {beforeEach, describe, expect, it, vi} from "vitest"
 import {setInputs, thrownBy, WorkflowLog} from "./helpers/actions"
 
 const PRODUCT = "46529d74-df19-4297-865f-6d11b6a787fd"
+const ZIP = join(process.cwd(), "test", "test.zip")
 
 /**
  * utils holds module-level state (RELEASE_TYPE_REGEX carries lastIndex between
@@ -118,8 +122,25 @@ describe("getReleaseType", () => {
 
 describe("getPath", () => {
 	it("accepts a zip path", () => {
-		setInputs({path: "build/addon.zip"})
-		expect(utils.getPath()).toBe("build/addon.zip")
+		setInputs({path: ZIP})
+		expect(utils.getPath()).toBe(ZIP)
+	})
+
+	it("rejects a path which does not exist", () => {
+		const missing = join(process.cwd(), "test", "does-not-exist.zip")
+		setInputs({path: missing})
+		expect(thrownBy(() => utils.getPath())).toBe(`Input 'path' does not exist: ${missing}`)
+	})
+
+	it("rejects a path which is not a regular file", () => {
+		const dir = join(mkdtempSync(join(tmpdir(), "gmodstore-")), "directory.zip")
+		mkdirSync(dir)
+		try {
+			setInputs({path: dir})
+			expect(thrownBy(() => utils.getPath())).toBe(`Input 'path' is not a file: ${dir}`)
+		} finally {
+			rmSync(dir, {recursive: true, force: true})
+		}
 	})
 
 	it("rejects a non-zip path", () => {

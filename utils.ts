@@ -1,6 +1,7 @@
 import {getInput, warning, InputOptions} from "@actions/core"
 import {validate as validUUID} from "uuid"
 import {parse} from "semver"
+import {statSync, type Stats} from "node:fs"
 
 /**
  * List of release types, ordered in MOST to LEAST public.
@@ -89,6 +90,19 @@ export function getPath(): string {
 	const path = getInput("path", defaultOptions)
 	if (!path.endsWith(".zip")){
 		throw "Input path must end in .zip"
+	}
+
+	// Checked here, alongside the other input validation, so that a bad path is
+	// reported through setFailed rather than escaping as a raw read error.
+	let stats: Stats
+	try {
+		stats = statSync(path)
+	} catch {
+		throw `Input 'path' does not exist: ${path}`
+	}
+
+	if (!stats.isFile()){
+		throw `Input 'path' is not a file: ${path}`
 	}
 
 	return path
