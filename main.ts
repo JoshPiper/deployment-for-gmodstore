@@ -2,13 +2,13 @@ import * as core from "@actions/core"
 import fetch, {type Response} from "node-fetch"
 import * as fs from "node:fs"
 import {
-	token as getToken,
-	product as getProduct,
-	effectiveNameVersion as getVersion,
-	path as getPath,
-	changelog as getChangelog,
-	baseUrl as getBaseUrl,
-	dry as isDryRun
+	getToken,
+	getProduct,
+	effectiveNameAndType,
+	getPath,
+	getChangelog,
+	getBaseUrl,
+	isDryRun
 } from "./utils";
 import {setFailed} from "@actions/core"
 import {FormData} from "formdata-node"
@@ -110,14 +110,14 @@ async function reportFailure(response: Response): Promise<void> {
 }
 
 async function main(){
-	let token, product, version, versionType, path, changelog, baseUrl
+	let token, product, versionName, releaseType, path, changelog, baseUrl
 	const dry = isDryRun()
 	try {
 		token = getToken()
 		product = getProduct()
-		let v = getVersion()
-		version = v[0]
-		versionType = v[1]
+		const resolved = effectiveNameAndType()
+		versionName = resolved[0]
+		releaseType = resolved[1]
 		path = getPath()
 		changelog = getChangelog()
 		baseUrl = getBaseUrl()
@@ -127,10 +127,10 @@ async function main(){
 	}
 
 	let newVersion = new FormData()
-	newVersion.append("name", version)
+	newVersion.append("name", versionName)
 	newVersion.append("changelog", changelog)
 	newVersion.append("file", new Blob([fs.readFileSync(path)]), path)
-	newVersion.append("releaseType", versionType)
+	newVersion.append("releaseType", releaseType)
 	let encoder = new FormDataEncoder(newVersion)
 
 	if (!dry){

@@ -114,8 +114,8 @@ describe("input handling", () => {
 		expect(api.lastRequest?.text("releaseType")).toBe("private")
 	})
 
-	it("honours nointuit", async () => {
-		useInputs({version: "1.2.3-beta", nointuit: "true"})
+	it("honours infer-type", async () => {
+		useInputs({version: "1.2.3-beta", "infer-type": "false"})
 		await main()
 
 		expect(api.lastRequest?.text("name")).toBe("1.2.3-beta")
@@ -170,7 +170,7 @@ describe("input handling", () => {
 
 describe("a dry run", () => {
 	it("does not contact the API", async () => {
-		useInputs({dryrun: "true"})
+		useInputs({"dry-run": "true"})
 		await main()
 
 		expect(api.requests).toHaveLength(0)
@@ -178,7 +178,7 @@ describe("a dry run", () => {
 	})
 
 	it("still validates inputs", async () => {
-		useInputs({dryrun: "true", type: "gamma"})
+		useInputs({"dry-run": "true", type: "gamma"})
 		await main()
 
 		expect(api.requests).toHaveLength(0)
@@ -186,9 +186,37 @@ describe("a dry run", () => {
 	})
 
 	it("still requires the zip to exist", async () => {
-		useInputs({dryrun: "true", path: join(process.cwd(), "test", "does-not-exist.zip")})
+		useInputs({"dry-run": "true", path: join(process.cwd(), "test", "does-not-exist.zip")})
 
 		await expect(main()).rejects.toThrow(/ENOENT/)
+	})
+})
+
+describe("deprecated input aliases", () => {
+	it("still skips the upload for dryrun, and warns", async () => {
+		useInputs({dryrun: "true"})
+		await main()
+
+		expect(api.requests).toHaveLength(0)
+		expect(actionFailed()).toBe(false)
+		expect(log.warnings.some(entry => entry.includes("Input 'dryrun' is deprecated"))).toBe(true)
+	})
+
+	it("still disables intuition for nointuit, and warns", async () => {
+		useInputs({version: "1.2.3-beta", nointuit: "true"})
+		await main()
+
+		expect(api.lastRequest?.text("name")).toBe("1.2.3-beta")
+		expect(api.lastRequest?.text("releaseType")).toBe("stable")
+		expect(log.warnings.some(entry => entry.includes("Input 'nointuit' is deprecated"))).toBe(true)
+	})
+
+	it("uploads without deprecation warnings when the current inputs are used", async () => {
+		useInputs({version: "1.2.3-beta", "infer-type": "false", "dry-run": "false"})
+		await main()
+
+		expect(api.requests).toHaveLength(1)
+		expect(log.warnings.some(entry => entry.includes("deprecated"))).toBe(false)
 	})
 })
 
