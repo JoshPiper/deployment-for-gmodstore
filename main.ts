@@ -1,5 +1,4 @@
 import * as core from "@actions/core"
-import fetch, {type Response} from "node-fetch"
 import * as fs from "node:fs"
 import {
 	getToken,
@@ -11,10 +10,6 @@ import {
 	isDryRun
 } from "./utils";
 import {setFailed} from "@actions/core"
-import {FormData} from "formdata-node"
-// @ts-ignore
-import {FormDataEncoder} from "form-data-encoder"
-import {Readable} from "stream";
 
 /** How much of an undecodable response body to put in the workflow log. */
 const BODY_LOG_LIMIT = 500
@@ -131,16 +126,16 @@ async function main(){
 	newVersion.append("changelog", changelog)
 	newVersion.append("file", new Blob([fs.readFileSync(path)]), path)
 	newVersion.append("releaseType", releaseType)
-	let encoder = new FormDataEncoder(newVersion)
 
 	if (!dry){
 		console.log(`${baseUrl}products/${product}/versions`)
+		// No content-type header: fetch derives it from the FormData, and
+		// setting it by hand would drop the multipart boundary.
 		let response = await fetch(`${baseUrl}products/${product}/versions`, {
 			method: "POST",
-			body: Readable.from(encoder),
+			body: newVersion,
 			headers: {
-				"Authorization": `Bearer ${token}`,
-				...encoder.headers
+				"Authorization": `Bearer ${token}`
 			}
 		})
 

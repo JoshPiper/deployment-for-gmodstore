@@ -1,9 +1,26 @@
 {
-	"extends": "@tsconfig/node20/tsconfig.json",
+	"extends": "@tsconfig/node24/tsconfig.json",
 
-	"files": [
+	"compilerOptions": {
+		// esbuild bundles and vitest transforms; tsc is only ever a type
+		// checker here, so resolution follows the bundler rather than Node.
+		"module": "preserve",
+		"moduleResolution": "bundler",
+		"noEmit": true,
+
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true
+	},
+
+	"include": [
 		"index.ts",
 		"main.ts",
-		"utils.ts"
+		"utils.ts",
+		"scripts/**/*.mts",
+		".github/scripts/**/*.mts",
+		"test/**/*.ts",
+		"vitest.config.mts"
 	]
 }

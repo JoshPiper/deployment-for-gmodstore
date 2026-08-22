@@ -28,3 +28,27 @@ Easily upload an addon build to GmodStore.
 | infer-type | Default: TRUE                                                            | Infer the `type` input from a pre-release suffix on the `version` input.                                                                                                                |
 | dryrun    | *Deprecated*                                                              | Deprecated alias for `dry-run`. Emits a warning when used.                                                                                                                              |
 | nointuit  | *Deprecated*                                                              | Deprecated inverse of `infer-type`; `nointuit: true` equals `infer-type: false`. Emits a warning when used.                                                                              |
+
+## Development
+
+Requires Node 24 or newer. The build and CI helper scripts are TypeScript that
+Node runs directly, so there is no build step for the tooling itself.
+
+`dist/index.js` is committed because GitHub runs an action straight from the
+repository with no install step. It is regenerated at release time, so a pull
+request does not need to rebuild it; CI builds from source to check it still
+bundles, and exercises the built action end to end.
+
+| Command | Does |
+|---------|------|
+| `npm run verify` | Everything CI runs: lint, typecheck, tests with coverage, bundle. |
+| `npm run build` | Bundle the action into `dist/`. |
+| `npm run build:watch` | Rebuild the bundle on change. |
+| `npm run clean` | Remove `dist/`. |
+| `npm test` | Unit tests. |
+| `npm run test:coverage` | Unit tests, with the coverage thresholds enforced. |
+| `npm run lint` | ESLint. |
+| `npm run typecheck` | `tsc --noEmit`. |
+
+The live smoke test in `test/live.spec.ts` uploads a real private version and is
+skipped unless both `GMS_LIVE=1` and `GMS_TOKEN` are set.
