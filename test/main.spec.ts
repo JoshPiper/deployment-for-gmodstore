@@ -156,13 +156,12 @@ describe("input handling", () => {
 		expect(api.lastRequest?.url).toBe(`/v3/products/${PRODUCT}/versions`)
 	})
 
-	// Documents current behaviour: the multipart filename is the raw input
-	// path, so the runner's directory layout is sent to the API.
-	it("sends the input path as the multipart filename", async () => {
+	// The full path would leak the runner's directory layout to the API.
+	it("sends only the basename as the multipart filename", async () => {
 		useInputs()
 		await main()
 
-		expect(api.lastRequest?.part("file")?.filename).toBe(ZIP)
+		expect(api.lastRequest?.part("file")?.filename).toBe("test.zip")
 	})
 })
 
