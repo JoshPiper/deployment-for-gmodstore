@@ -1,21 +1,139 @@
 name: Test
 
-on: workflow_dispatch
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A same-repo pull request fires both push and pull_request; superseded runs on
+# the same ref are cancelled rather than left to burn minutes.
+concurrency:
+  group: "test-${{ github.ref }}"
+  cancel-in-progress: true
 
 jobs:
-  test:
-    name: Test
+  unit:
+    name: "Unit (Node ${{ matrix.node }})"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["20", "22", "24"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "${{ matrix.node }}"
+          cache: npm
+
       - name: Install Dependencies
-        run: npm ci && npm run build
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
       - name: Test
+        run: npm run test:coverage
+
+      - name: Coverage Summary
+        if: always()
+        run: node .github/scripts/coverage-summary.js
+
+      - name: Upload Coverage
+        if: always() && matrix.node == '20'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 7
+
+  dry-run:
+    name: Dry Run
+    # Pull requests additionally exercise the bundled action end to end, which
+    # is the only thing that covers dist/index.js and action.yml wiring.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      PRODUCT: "00000000-0000-0000-0000-000000000000"
+      TOKEN: "dry-run-placeholder"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      # Build from the source under review rather than trusting the committed
+      # bundle, which is only regenerated at release time.
+      - name: Build Action Bundle
+        run: npm run build
+
+      - name: Dry Run With An Explicit Type
         uses: ./
         with:
-          product: ${{ secrets.GMS_ADDON_ID }}
-          token: ${{ secrets.GMS_TOKEN }}
-          version: 1.0.0
+          product: "${{ env.PRODUCT }}"
+          token: "${{ env.TOKEN }}"
+          version: "1.2.3"
           type: private
-          path: tests/test.zip
+          path: test/test.zip
+          changelog: "Dry run from ${{ github.sha }}."
+          dryrun: "true"
+
+      # An empty type is what lets the action intuit the release type from the
+      # version string; the action.yml default would otherwise suppress it.
+      - name: Dry Run With An Intuited Type
+        uses: ./
+        with:
+          product: "${{ env.PRODUCT }}"
+          token: "${{ env.TOKEN }}"
+          version: "1.2.3-beta"
+          type: ""
+          path: test/test.zip
+          dryrun: "true"
+
+      - name: Dry Run With An Invalid Product
+        id: invalid-product
+        continue-on-error: true
+        uses: ./
+        with:
+          product: "not-a-uuid"
+          token: "${{ env.TOKEN }}"
+          version: "1.2.3"
+          path: test/test.zip
+          dryrun: "true"
+
+      - name: Dry Run With A Missing Archive
+        id: missing-archive
+        continue-on-error: true
+        uses: ./
+        with:
+          product: "${{ env.PRODUCT }}"
+          token: "${{ env.TOKEN }}"
+          version: "1.2.3"
+          path: test/does-not-exist.zip
+          dryrun: "true"
+
+      - name: Assert Invalid Input Fails The Action
+        run: |
+          failed=0
+          if [ "${{ steps.invalid-product.outcome }}" != "failure" ]; then
+            echo "::error::An invalid product UUID should fail the action, got '${{ steps.invalid-product.outcome }}'."
+            failed=1
+          fi
+          if [ "${{ steps.missing-archive.outcome }}" != "failure" ]; then
+            echo "::error::A missing archive should fail the action, got '${{ steps.missing-archive.outcome }}'."
+            failed=1
+          fi
+          exit $failed
