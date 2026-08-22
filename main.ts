@@ -105,6 +105,78 @@ async function reportFailure(response: Response): Promise<void> {
 	}
 }
 
+/**
+ * The created version, as far as the success response could be read.
+ * Every field is optional: an unreadable body must not fail the action.
+ */
+interface CreatedVersion {
+	id?: string
+	name?: string
+	releaseType?: string
+}
+
+/** The value if it is a string, otherwise undefined. */
+function asString(value: unknown): string | undefined {
+	return typeof value === "string" ? value : undefined
+}
+
+/**
+ * Decode the body of a 2xx response, or undefined if it cannot be read.
+ *
+ * This is the mirror image of decodeErrorBody, and takes the opposite view of
+ * a body it cannot parse: the upload has already happened, so nothing in here
+ * may fail or even warn. A bad body costs the outputs their API-supplied
+ * values and nothing else, so the reason goes to the debug log.
+ */
+async function decodeCreatedVersion(response: Response): Promise<CreatedVersion | undefined> {
+	let body: unknown
+	try {
+		body = JSON.parse(await response.text())
+	} catch (err){
+		core.debug(`The successful response body could not be decoded: ${err}`)
+		return undefined
+	}
+
+	const data: unknown = typeof body === "object" && body !== null ? (body as {data?: unknown}).data : undefined
+	if (typeof data !== "object" || data === null){
+		core.debug("The successful response body carried no version object.")
+		return undefined
+	}
+
+	const version = data as Record<string, unknown>
+	return {
+		id: asString(version.id),
+		name: asString(version.name),
+		releaseType: asString(version.releaseType)
+	}
+}
+
+/** Publish what was uploaded, for downstream steps to reference. */
+function setOutputs(id: string, name: string, releaseType: string): void {
+	core.setOutput("version-id", id)
+	core.setOutput("version-name", name)
+	core.setOutput("release-type", releaseType)
+}
+
+/**
+ * Report a successful upload to the workflow.
+ *
+ * The API is the authority on what was actually created, so its values win
+ * where the response gave any; the resolved inputs stand in where it did not.
+ */
+async function reportSuccess(response: Response, versionName: string, releaseType: string): Promise<void> {
+	const created = await decodeCreatedVersion(response) ?? {}
+	const name = created.name ?? versionName
+	const type = created.releaseType ?? releaseType
+
+	core.info(`Uploaded version "${name}" as a ${type} release.`)
+	if (created.id !== undefined){
+		core.info(`Version ID: ${created.id}`)
+	}
+
+	setOutputs(created.id ?? "", name, type)
+}
+
 async function main(){
 	let token, product, versionName, releaseType, path, archive, changelog, baseUrl
 	const dry = isDryRun()
@@ -147,7 +219,15 @@ async function main(){
 
 		if (response.status < 200 || response.status >= 300){
 			await reportFailure(response)
+			return
 		}
+
+		await reportSuccess(response, versionName, releaseType)
+	} else {
+		// Nothing was created, so there is no ID to report, but the resolved
+		// name and type are exactly what a dry run exists to confirm.
+		core.info(`Dry run: would upload version "${versionName}" as a ${releaseType} release.`)
+		setOutputs("", versionName, releaseType)
 	}
 }
 

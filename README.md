@@ -35,6 +35,27 @@ Easily upload an addon build to GmodStore.
 | dryrun    | *Deprecated*                                                              | Deprecated alias for `dry-run`. Emits a warning when used.                                                                                                                              |
 | nointuit  | *Deprecated*                                                              | Deprecated inverse of `infer-type`; `nointuit: true` equals `infer-type: false`. Emits a warning when used.                                                                              |
 
+## Outputs
+
+| Output       | Description                                                                                                                                    |
+|--------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| version-id   | The UUID of the created version, taken from the API response. Empty on a dry run, or if the response body could not be read.                   |
+| version-name | The version name that was uploaded, after any release type suffix was stripped. Useful when the type was inferred from `version`.               |
+| release-type | The release type that was uploaded to, whether it was given in `type` or inferred from `version`.                                               |
+
+```yml
+- name: Upload
+  id: upload
+  uses: JoshPiper/deployment-for-gmodstore@v2 # x-release-please-major
+  with:
+    product: "00000000-0000-0000-0000-000000000000"
+    token: "${{ secrets.GMS_TOKEN }}"
+    version: "1.0.0-beta"
+    path: "addon.zip"
+- name: Announce
+  run: echo "Published ${{ steps.upload.outputs.version-name }} to ${{ steps.upload.outputs.release-type }} as ${{ steps.upload.outputs.version-id }}"
+```
+
 ## Development
 
 Requires Node 24 or newer. The build and CI helper scripts are TypeScript that

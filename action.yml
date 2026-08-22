@@ -47,3 +47,11 @@ inputs:
     description: "Deprecated: use 'infer-type' instead. The two are inverted, so 'nointuit: true' is equivalent to 'infer-type: false'."
     required: false
     deprecationMessage: "The 'nointuit' input is deprecated. Use 'infer-type: false' instead."
+
+outputs:
+  version-id:
+    description: "The UUID of the created version. Empty on a dry run, or if the API response could not be read."
+  version-name:
+    description: "The version name that was uploaded, after any release type suffix was stripped."
+  release-type:
+    description: "The release type that was uploaded to, whether given or inferred."

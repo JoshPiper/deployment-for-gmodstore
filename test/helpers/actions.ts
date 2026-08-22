@@ -1,3 +1,6 @@
+import {mkdtempSync, readFileSync, rmSync, writeFileSync} from "node:fs"
+import {tmpdir} from "node:os"
+import {join} from "node:path"
 import {vi} from "vitest"
 
 const INPUT_PREFIX = "INPUT_"
@@ -111,6 +114,68 @@ export class WorkflowLog {
 
 	get warnings(): string[] {
 		return this.messages("warning")
+	}
+}
+
+/**
+ * Capture the outputs the action sets.
+ *
+ * Outputs are read back through the file named by GITHUB_OUTPUT, the same way
+ * the runner collects them, rather than through the deprecated ::set-output::
+ * command @actions/core falls back to when that variable is unset.
+ */
+export class OutputFile {
+	private readonly directory = mkdtempSync(join(tmpdir(), "gms-outputs-"))
+	private readonly path = join(this.directory, "outputs.txt")
+	private previous?: string
+
+	start(): void {
+		this.previous = process.env.GITHUB_OUTPUT
+		writeFileSync(this.path, "")
+		process.env.GITHUB_OUTPUT = this.path
+	}
+
+	stop(): void {
+		if (this.previous === undefined){
+			delete process.env.GITHUB_OUTPUT
+		} else {
+			process.env.GITHUB_OUTPUT = this.previous
+		}
+
+		rmSync(this.directory, {recursive: true, force: true})
+	}
+
+	/**
+	 * Every output written so far.
+	 *
+	 * The file holds heredoc-delimited records: a "name<<delimiter" line, the
+	 * value, then the delimiter alone. A repeated name takes its last value,
+	 * as the runner does.
+	 */
+	get all(): Record<string, string> {
+		const lines = readFileSync(this.path, "utf8").split(/\r?\n/)
+		const outputs: Record<string, string> = {}
+
+		for (let i = 0; i < lines.length; i++){
+			const header = /^(.*?)<<(.+)$/.exec(lines[i])
+			if (header === null){
+				continue
+			}
+
+			const [, name, delimiter] = header
+			const value: string[] = []
+			while (++i < lines.length && lines[i] !== delimiter){
+				value.push(lines[i])
+			}
+
+			outputs[name] = value.join("\n")
+		}
+
+		return outputs
+	}
+
+	get(name: string): string | undefined {
+		return this.all[name]
 	}
 }
 
