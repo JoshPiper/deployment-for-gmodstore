@@ -2095,6 +2095,37 @@ function escapeProperty(s) {
   return toCommandValue(s).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A").replace(/:/g, "%3A").replace(/,/g, "%2C");
 }
 
+// node_modules/@actions/core/lib/file-command.js
+var crypto = __toESM(require("crypto"), 1);
+var fs = __toESM(require("fs"), 1);
+var os2 = __toESM(require("os"), 1);
+function issueFileCommand(command, message) {
+  const filePath = process.env[`GITHUB_${command}`];
+  if (!filePath) {
+    throw new Error(`Unable to find environment variable for file command ${command}`);
+  }
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Missing file at path: ${filePath}`);
+  }
+  fs.appendFileSync(filePath, `${toCommandValue(message)}${os2.EOL}`, {
+    encoding: "utf8"
+  });
+}
+function prepareKeyValueMessage(key, value) {
+  const delimiter = `ghadelimiter_${crypto.randomUUID()}`;
+  const convertedValue = toCommandValue(value);
+  if (key.includes(delimiter)) {
+    throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
+  }
+  if (convertedValue.includes(delimiter)) {
+    throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
+  }
+  return `${key}<<${delimiter}${os2.EOL}${convertedValue}${os2.EOL}${delimiter}`;
+}
+
+// node_modules/@actions/core/lib/core.js
+var os4 = __toESM(require("os"), 1);
+
 // node_modules/@actions/core/lib/summary.js
 var import_os = require("os");
 var import_fs = require("fs");
@@ -2383,10 +2414,10 @@ var _summary = new Summary();
 var import_os2 = __toESM(require("os"), 1);
 
 // node_modules/@actions/io/lib/io-util.js
-var fs = __toESM(require("fs"), 1);
-var { chmod, copyFile, lstat, mkdir, open, readdir, rename, rm, rmdir, stat, symlink, unlink } = fs.promises;
+var fs2 = __toESM(require("fs"), 1);
+var { chmod, copyFile, lstat, mkdir, open, readdir, rename, rm, rmdir, stat, symlink, unlink } = fs2.promises;
 var IS_WINDOWS = process.platform === "win32";
-var READONLY = fs.constants.O_RDONLY;
+var READONLY = fs2.constants.O_RDONLY;
 
 // node_modules/@actions/exec/lib/toolrunner.js
 var IS_WINDOWS2 = process.platform === "win32";
@@ -2401,6 +2432,9 @@ var ExitCode;
   ExitCode2[ExitCode2["Success"] = 0] = "Success";
   ExitCode2[ExitCode2["Failure"] = 1] = "Failure";
 })(ExitCode || (ExitCode = {}));
+function setSecret(secret) {
+  issueCommand("add-mask", {}, secret);
+}
 function getInput(name, options) {
   const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
   if (options && options.required && !val) {
@@ -2411,9 +2445,20 @@ function getInput(name, options) {
   }
   return val.trim();
 }
+function setOutput(name, value) {
+  const filePath = process.env["GITHUB_OUTPUT"] || "";
+  if (filePath) {
+    return issueFileCommand("OUTPUT", prepareKeyValueMessage(name, value));
+  }
+  process.stdout.write(os4.EOL);
+  issueCommand("set-output", { name }, toCommandValue(value));
+}
 function setFailed(message) {
   process.exitCode = ExitCode.Failure;
   error(message);
+}
+function debug(message) {
+  issueCommand("debug", {}, message);
 }
 function error(message, properties = {}) {
   issueCommand("error", toCommandProperties(properties), message instanceof Error ? message.toString() : message);
@@ -2421,9 +2466,13 @@ function error(message, properties = {}) {
 function warning(message, properties = {}) {
   issueCommand("warning", toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
+function info(message) {
+  process.stdout.write(message + os4.EOL);
+}
 
 // main.ts
-var fs2 = __toESM(require("node:fs"));
+var fs3 = __toESM(require("node:fs"));
+var import_node_path = require("node:path");
 
 // node_modules/uuid/dist-node/regex.js
 var regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/i;
@@ -2436,9 +2485,10 @@ var validate_default = validate;
 
 // utils.ts
 var import_semver = __toESM(require_semver2());
+var import_node_fs = require("node:fs");
 var RELEASE_TYPES = ["demo", "stable", "beta", "alpha", "private"];
 var RELEASE_TYPE_SET = new Set(RELEASE_TYPES);
-var RELEASE_TYPE_REGEX = /(.*?)-(stable|beta|alpha|private|demo)$/gi;
+var RELEASE_TYPE_REGEX = /(.*?)-(stable|beta|alpha|private|demo)$/i;
 var defaultOptions = function(extra) {
   return { ...this, ...extra };
 };
@@ -2462,7 +2512,9 @@ function legacyInput(name, replacement, extra = "") {
   return value;
 }
 function getToken() {
-  return getInput("token", defaultOptions);
+  const token = getInput("token", defaultOptions);
+  setSecret(token);
+  return token;
 }
 function getProduct() {
   let pid = getInput("product", defaultOptions);
@@ -2490,6 +2542,15 @@ function getPath() {
   const path = getInput("path", defaultOptions);
   if (!path.endsWith(".zip")) {
     throw "Input path must end in .zip";
+  }
+  let stats;
+  try {
+    stats = (0, import_node_fs.statSync)(path);
+  } catch {
+    throw `Input 'path' does not exist: ${path}`;
+  }
+  if (!stats.isFile()) {
+    throw `Input 'path' is not a file: ${path}`;
   }
   return path;
 }
@@ -2544,9 +2605,9 @@ function effectiveNameAndType() {
     return [raw, getReleaseType()];
   }
   if (infer) {
-    console.log("Intuiting");
+    debug("Intuiting");
     const ver = (0, import_semver.parse)(raw);
-    console.log(ver);
+    debug(String(ver));
     if (ver !== null) {
       let last = null;
       const parsed = /* @__PURE__ */ new Map();
@@ -2567,12 +2628,12 @@ function effectiveNameAndType() {
       if (last) {
         parsed.set(last, 0);
       }
-      console.log(parsed);
+      debug(JSON.stringify([...parsed]));
       for (const suffix of RELEASE_TYPES.toReversed()) {
         if (parsed.has(suffix)) {
-          console.log(`has ${suffix}`);
+          debug(`has ${suffix}`);
           if (parsed.size !== 1 || parsed.get(suffix) !== 0) {
-            console.log("returning");
+            debug("returning");
             return [ver.raw, suffix];
           } else {
             ver.prerelease = [];
@@ -2651,8 +2712,46 @@ async function reportFailure(response) {
     }
   }
 }
+function asString(value) {
+  return typeof value === "string" ? value : void 0;
+}
+async function decodeCreatedVersion(response) {
+  let body;
+  try {
+    body = JSON.parse(await response.text());
+  } catch (err) {
+    debug(`The successful response body could not be decoded: ${err}`);
+    return void 0;
+  }
+  const data = typeof body === "object" && body !== null ? body.data : void 0;
+  if (typeof data !== "object" || data === null) {
+    debug("The successful response body carried no version object.");
+    return void 0;
+  }
+  const version = data;
+  return {
+    id: asString(version.id),
+    name: asString(version.name),
+    releaseType: asString(version.releaseType)
+  };
+}
+function setOutputs(id, name, releaseType) {
+  setOutput("version-id", id);
+  setOutput("version-name", name);
+  setOutput("release-type", releaseType);
+}
+async function reportSuccess(response, versionName, releaseType) {
+  const created = await decodeCreatedVersion(response) ?? {};
+  const name = created.name ?? versionName;
+  const type = created.releaseType ?? releaseType;
+  info(`Uploaded version "${name}" as a ${type} release.`);
+  if (created.id !== void 0) {
+    info(`Version ID: ${created.id}`);
+  }
+  setOutputs(created.id ?? "", name, type);
+}
 async function main() {
-  let token, product, versionName, releaseType, path, changelog, baseUrl;
+  let token, product, versionName, releaseType, path, archive, changelog, baseUrl;
   const dry = isDryRun();
   try {
     token = getToken();
@@ -2661,6 +2760,7 @@ async function main() {
     versionName = resolved[0];
     releaseType = resolved[1];
     path = getPath();
+    archive = fs3.readFileSync(path);
     changelog = getChangelog();
     baseUrl = getBaseUrl();
   } catch (err) {
@@ -2671,10 +2771,11 @@ ${err}`);
   let newVersion = new FormData();
   newVersion.append("name", versionName);
   newVersion.append("changelog", changelog);
-  newVersion.append("file", new Blob([fs2.readFileSync(path)]), path);
+  newVersion.append("file", new Blob([archive]), (0, import_node_path.basename)(path));
   newVersion.append("releaseType", releaseType);
   if (!dry) {
     const endpoint = new URL(`products/${product}/versions`, baseUrl);
+    info(endpoint.toString());
     let response = await fetch(endpoint, {
       method: "POST",
       body: newVersion,
@@ -2684,7 +2785,12 @@ ${err}`);
     });
     if (response.status < 200 || response.status >= 300) {
       await reportFailure(response);
+      return;
     }
+    await reportSuccess(response, versionName, releaseType);
+  } else {
+    info(`Dry run: would upload version "${versionName}" as a ${releaseType} release.`);
+    setOutputs("", versionName, releaseType);
   }
 }
 
