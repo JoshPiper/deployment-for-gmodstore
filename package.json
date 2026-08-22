@@ -2,19 +2,18 @@
   "name": "@doctor_internet/deployment-for-gmodstore",
   "version": "1.0.0",
   "description": "GitHub Action for deploying to GModStore.",
-  "main": "index.js",
+  "type": "commonjs",
   "scripts": {
-    "build:source": "npx ncc build index.ts --license licenses.txt",
-    "build:source:clean": "rm dist/index.js dist/licenses.txt; rmdir dist",
-    "build:source:watch": "npx ncc build --watch index.ts",
-    "build:modules:clean": "((ls node_modules > /dev/null 2>&1) && rm -r ./node_modules) || true",
-    "build": "npm run build:source",
-    "build:full": "npm run build:modules:clean && npm run build:source:clean && npm ci && npm run build:source",
-    "typecheck": "tsc --noEmit -p tsconfig.test.json",
+    "build": "node scripts/build.mts",
+    "build:watch": "node scripts/build.mts --watch",
+    "clean": "node scripts/build.mts --clean",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "release": "npx semantic-release"
+    "verify": "npm run lint && npm run typecheck && npm run test:coverage && npm run build",
+    "release": "semantic-release"
   },
   "repository": {
     "type": "github",
@@ -24,27 +23,25 @@
   "author": "John Internet <internet@doctor-internet.dev>",
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "form-data-encoder": "^1.9.0",
-    "formdata-node": "^6.0.3",
-    "node-fetch": "^2.7.0",
+    "@actions/core": "^3.0.1",
     "semver": "^7.7.2",
-    "uuid": "^13.0.0"
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@semantic-release/exec": "^7.1.0",
-    "@tsconfig/node20": "^20.1.6",
+    "@tsconfig/node24": "^24.0.5",
     "@types/node": "^26.2.0",
-    "@types/node-fetch": "^2.6.6",
     "@types/semver": "^7.7.1",
-    "@types/uuid": "^11.0.0",
-    "@vercel/ncc": "^0.38.3",
     "@vitest/coverage-v8": "^4.1.11",
-    "typescript": "^5.9.2",
-    "vitest": "^4.1.11",
-    "yaml": "^2.8.1"
+    "esbuild": "^0.28.2",
+    "eslint": "^10.9.0",
+    "semantic-release": "^25.0.9",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.11"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=24.0.0"
   }
 }
