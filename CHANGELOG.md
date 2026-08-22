@@ -5,6 +5,22 @@ around them was rebased, so they are grouped by release rather than pinned
 precisely to each tag.
 -->
 
+## [2.1.0](https://github.com/JoshPiper/deployment-for-gmodstore/compare/v2.0.0...v2.1.0) (2026-08-22)
+
+
+### Features
+
+* report a successful upload and expose it as outputs ([#387](https://github.com/JoshPiper/deployment-for-gmodstore/issues/387)) ([8d03afa](https://github.com/JoshPiper/deployment-for-gmodstore/commit/8d03afa2763db529ac5d96110faa3da5b11e623c)), closes [#371](https://github.com/JoshPiper/deployment-for-gmodstore/issues/371)
+
+
+### Bug Fixes
+
+* drop the /g flag from RELEASE_TYPE_REGEX ([#379](https://github.com/JoshPiper/deployment-for-gmodstore/issues/379)) ([6b39ad6](https://github.com/JoshPiper/deployment-for-gmodstore/commit/6b39ad6774ab78e2292f925d3e3db0474e48fa50)), closes [#365](https://github.com/JoshPiper/deployment-for-gmodstore/issues/365)
+* fail cleanly when the zip path is missing or not a file ([#382](https://github.com/JoshPiper/deployment-for-gmodstore/issues/382)) ([6735969](https://github.com/JoshPiper/deployment-for-gmodstore/commit/67359696a34c2f675a57d91222f65af31ed81f0f)), closes [#367](https://github.com/JoshPiper/deployment-for-gmodstore/issues/367)
+* normalise baseurl so endpoints resolve correctly ([#380](https://github.com/JoshPiper/deployment-for-gmodstore/issues/380)) ([0c31b6d](https://github.com/JoshPiper/deployment-for-gmodstore/commit/0c31b6d462e6f0d2beac9b89d8c85587fa8fc985)), closes [#366](https://github.com/JoshPiper/deployment-for-gmodstore/issues/366)
+* register the API token with setSecret ([#370](https://github.com/JoshPiper/deployment-for-gmodstore/issues/370)) ([#386](https://github.com/JoshPiper/deployment-for-gmodstore/issues/386)) ([cea6e4b](https://github.com/JoshPiper/deployment-for-gmodstore/commit/cea6e4b4f4ce03369d3a840a2ee3bf723fb61802))
+* send only the basename as the multipart filename ([#381](https://github.com/JoshPiper/deployment-for-gmodstore/issues/381)) ([61c52f0](https://github.com/JoshPiper/deployment-for-gmodstore/commit/61c52f013388d82ceda3d3ecdbaa7b63c5bd08d3)), closes [#368](https://github.com/JoshPiper/deployment-for-gmodstore/issues/368)
+
 ## [2.0.0](https://github.com/JoshPiper/deployment-for-gmodstore/compare/v1.0.4...v2.0.0) (2026-08-22)
 
 
