@@ -139,14 +139,14 @@ describe("input handling", () => {
 		expect(actionFailed()).toBe(true)
 	})
 
-	// Documents current behaviour: the file is read outside the guarded input
-	// block, so a bad path escapes main() instead of calling setFailed. The
-	// entrypoint catches it and exits 1, but the message is a raw stack trace.
-	it("rejects rather than failing cleanly when the zip is missing", async () => {
+	it("fails cleanly without uploading when the zip is missing", async () => {
 		useInputs({path: join(process.cwd(), "test", "does-not-exist.zip")})
+		await main()
 
-		await expect(main()).rejects.toThrow(/ENOENT/)
 		expect(api.requests).toHaveLength(0)
+		expect(actionFailed()).toBe(true)
+		expect(log.errors.join("\n")).toContain("An error occured during input processing.")
+		expect(log.errors.join("\n")).toContain("does not exist")
 	})
 
 	it("normalises a base URL that is missing its trailing slash", async () => {
@@ -184,8 +184,10 @@ describe("a dry run", () => {
 
 	it("still requires the zip to exist", async () => {
 		useInputs({"dry-run": "true", path: join(process.cwd(), "test", "does-not-exist.zip")})
+		await main()
 
-		await expect(main()).rejects.toThrow(/ENOENT/)
+		expect(api.requests).toHaveLength(0)
+		expect(actionFailed()).toBe(true)
 	})
 })
 

@@ -106,7 +106,7 @@ async function reportFailure(response: Response): Promise<void> {
 }
 
 async function main(){
-	let token, product, versionName, releaseType, path, changelog, baseUrl
+	let token, product, versionName, releaseType, path, archive, changelog, baseUrl
 	const dry = isDryRun()
 	try {
 		token = getToken()
@@ -115,6 +115,9 @@ async function main(){
 		versionName = resolved[0]
 		releaseType = resolved[1]
 		path = getPath()
+		// Read here, inside the guard, so an I/O error fails the action the same
+		// way a bad input does rather than escaping main() as a stack trace.
+		archive = fs.readFileSync(path)
 		changelog = getChangelog()
 		baseUrl = getBaseUrl()
 	} catch (err){
@@ -125,7 +128,7 @@ async function main(){
 	let newVersion = new FormData()
 	newVersion.append("name", versionName)
 	newVersion.append("changelog", changelog)
-	newVersion.append("file", new Blob([fs.readFileSync(path)]), basename(path))
+	newVersion.append("file", new Blob([archive]), basename(path))
 	newVersion.append("releaseType", releaseType)
 
 	if (!dry){
