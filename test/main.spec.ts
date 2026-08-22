@@ -246,16 +246,90 @@ describe("an API error with a non-JSON body", () => {
 		expect(log.warnings.join("\n")).toContain("An error occurred whilst decoding the JSON response.")
 	})
 
-	// KNOWN BUG: a non-2xx response whose body will not parse as JSON returns
-	// without calling setFailed, so a proxy or CDN error page during an outage
-	// produces a green deploy that uploaded nothing.
-	// Flip this to it() once main() fails on an undecodable error response.
-	it.fails("fails the action", async () => {
+	// Regression test for a green deploy which uploaded nothing: an error page
+	// from a proxy or CDN used to return without ever calling setFailed.
+	it("fails the action", async () => {
 		api.willReply(GATEWAY_ERROR)
 		useInputs()
 		await main()
 
 		expect(actionFailed()).toBe(true)
+	})
+
+	it("reports the status code in the failure", async () => {
+		api.willReply(GATEWAY_ERROR)
+		useInputs()
+		await main()
+
+		expect(log.errors.join("\n"))
+			.toContain("An error occurred during upload, with HTTP code 502 and an undecodable body.")
+	})
+
+	// The body is the only clue to what actually served the error, so it has to
+	// reach the log rather than being swallowed with the failed JSON decode.
+	it("logs the body it could not decode", async () => {
+		api.willReply(GATEWAY_ERROR)
+		useInputs()
+		await main()
+
+		expect(log.warnings.join("\n")).toContain("The response body was: <h1>Bad Gateway</h1>")
+	})
+
+	it("fails on an empty body", async () => {
+		api.willReply({status: 502, contentType: "text/html", body: ""})
+		useInputs()
+		await main()
+
+		expect(actionFailed()).toBe(true)
+		expect(log.warnings.join("\n")).toContain("The response body was empty.")
+	})
+
+	it("truncates an oversized body", async () => {
+		api.willReply({status: 500, contentType: "text/html", body: "x".repeat(1000)})
+		useInputs()
+		await main()
+
+		expect(actionFailed()).toBe(true)
+		expect(log.warnings.join("\n")).toContain("... (1000 bytes total)")
+		expect(log.raw).not.toContain("x".repeat(600))
+	})
+
+	it("fails on a JSON body which is not an object", async () => {
+		api.willReply({status: 503, body: "null"})
+		useInputs()
+		await main()
+
+		expect(actionFailed()).toBe(true)
+		expect(log.warnings.join("\n")).toContain("The API returned a JSON response which was not an object.")
+	})
+
+	it("fails on a JSON string body", async () => {
+		api.willReply({status: 503, body: '"Service Unavailable"'})
+		useInputs()
+		await main()
+
+		expect(actionFailed()).toBe(true)
+		expect(log.errors.join("\n")).toContain("HTTP code 503")
+	})
+
+	it("does not retry the upload", async () => {
+		api.willReply(GATEWAY_ERROR)
+		useInputs()
+		await main()
+
+		expect(api.requests).toHaveLength(1)
+	})
+})
+
+describe("a successful upload with a non-JSON body", () => {
+	it("succeeds without inspecting the body", async () => {
+		api.willReply({status: 201, contentType: "text/html", body: "<h1>Created</h1>"})
+		useInputs()
+		await main()
+
+		expect(actionFailed()).toBe(false)
+		expect(log.errors).toEqual([])
+		expect(log.warnings).toEqual([])
 	})
 })
 
