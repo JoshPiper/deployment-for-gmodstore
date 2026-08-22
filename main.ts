@@ -1,5 +1,6 @@
 import * as core from "@actions/core"
 import * as fs from "node:fs"
+import {basename} from "node:path"
 import {
 	getToken,
 	getProduct,
@@ -124,7 +125,7 @@ async function main(){
 	let newVersion = new FormData()
 	newVersion.append("name", versionName)
 	newVersion.append("changelog", changelog)
-	newVersion.append("file", new Blob([fs.readFileSync(path)]), path)
+	newVersion.append("file", new Blob([fs.readFileSync(path)]), basename(path))
 	newVersion.append("releaseType", releaseType)
 
 	if (!dry){
