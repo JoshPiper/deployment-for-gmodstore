@@ -149,13 +149,11 @@ describe("input handling", () => {
 		expect(api.requests).toHaveLength(0)
 	})
 
-	// Documents current behaviour: the base URL is concatenated, not resolved,
-	// so a missing trailing slash silently produces a wrong path.
-	it("concatenates the base URL without inserting a separator", async () => {
+	it("normalises a base URL that is missing its trailing slash", async () => {
 		useInputs({baseurl: api.baseUrl.replace(/\/$/, "")})
 		await main()
 
-		expect(api.lastRequest?.url).toBe(`/v3products/${PRODUCT}/versions`)
+		expect(api.lastRequest?.url).toBe(`/v3/products/${PRODUCT}/versions`)
 	})
 
 	// Documents current behaviour: the multipart filename is the raw input

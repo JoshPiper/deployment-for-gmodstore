@@ -109,6 +109,12 @@ export function getBaseUrl(): URL {
 		url = "https://api.gmodstore.com/v3/"
 	}
 
+	// Endpoints are resolved relatively against this, and new URL() replaces
+	// the final path segment unless the base ends in a slash.
+	if (!url.endsWith("/")){
+		url += "/"
+	}
+
 	return new URL(url)
 }
 
