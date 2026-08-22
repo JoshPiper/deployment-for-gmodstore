@@ -1,6 +1,6 @@
 {
   "name": "@doctor_internet/deployment-for-gmodstore",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "GitHub Action for deploying to GModStore.",
   "type": "commonjs",
   "scripts": {
