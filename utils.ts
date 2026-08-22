@@ -1,4 +1,4 @@
-import {getInput, warning, InputOptions, debug} from "@actions/core"
+import {getInput, setSecret, warning, InputOptions, debug} from "@actions/core"
 import {validate as validUUID} from "uuid"
 import {parse} from "semver"
 import {statSync, type Stats} from "node:fs"
@@ -50,8 +50,16 @@ function legacyInput(name: string, replacement: string, extra: string = ""): str
 	return value
 }
 
+/**
+ * The API token, masked in the log from the moment it is first read.
+ * Tokens supplied through secrets.* are masked by the runner already, but one
+ * coming from anywhere else (vars.*, an expression, a literal) is not.
+ */
 export function getToken(): string {
-	return getInput("token", defaultOptions)
+	const token = getInput("token", defaultOptions)
+	setSecret(token)
+
+	return token
 }
 
 export function getProduct(): string {
