@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it, vi} from "vitest"
-import {setInputs, thrownBy} from "./helpers/actions"
+import {setInputs, thrownBy, WorkflowLog} from "./helpers/actions"
 
 const PRODUCT = "46529d74-df19-4297-865f-6d11b6a787fd"
 
@@ -177,19 +177,160 @@ describe("isDryRun", () => {
 	})
 
 	it.each(["true", "TRUE", "True"])("is true for %s", value => {
-		setInputs({dryrun: value})
+		setInputs({"dry-run": value})
 		expect(utils.isDryRun()).toBe(true)
 	})
 
 	it("is false for false", () => {
-		setInputs({dryrun: "false"})
+		setInputs({"dry-run": "false"})
 		expect(utils.isDryRun()).toBe(false)
 	})
 
-	// Documents current behaviour: only the literal string "true" enables it.
-	it("is false for 1", () => {
-		setInputs({dryrun: "1"})
+	// Only the literal booleans are recognised; anything else falls back.
+	it("is false for an unrecognised value", () => {
+		setInputs({"dry-run": "1"})
 		expect(utils.isDryRun()).toBe(false)
+	})
+
+	it("ignores surrounding whitespace", () => {
+		setInputs({"dry-run": "  TRUE  "})
+		expect(utils.isDryRun()).toBe(true)
+	})
+})
+
+describe("shouldInferType", () => {
+	it("is true when unset, so intuition is opt-out", () => {
+		expect(utils.shouldInferType()).toBe(true)
+	})
+
+	it("is false when disabled", () => {
+		setInputs({"infer-type": "false"})
+		expect(utils.shouldInferType()).toBe(false)
+	})
+
+	it.each(["true", "TRUE", "True"])("is true for %s", value => {
+		setInputs({"infer-type": value})
+		expect(utils.shouldInferType()).toBe(true)
+	})
+
+	// Only the literal booleans are recognised; anything else falls back, and
+	// this input falls back to enabled rather than disabled.
+	it("is true for an unrecognised value", () => {
+		setInputs({"infer-type": "yes"})
+		expect(utils.shouldInferType()).toBe(true)
+	})
+})
+
+/**
+ * dry-run and infer-type replaced dryrun and nointuit. The old names keep
+ * working but warn, and neither carries a default in action.yml: a default
+ * would make the old input always present and the warning permanent.
+ */
+describe("deprecated input aliases", () => {
+	/** Capture workflow commands so a test's ::warning:: never annotates a real run. */
+	function warningsFrom(fn: () => unknown): string[] {
+		const log = new WorkflowLog()
+		log.start()
+		try {
+			fn()
+		} finally {
+			log.stop()
+		}
+
+		return log.warnings
+	}
+
+	describe("dryrun", () => {
+		it("still enables a dry run", () => {
+			setInputs({dryrun: "true"})
+			expect(warningsFrom(() => expect(utils.isDryRun()).toBe(true))).toHaveLength(1)
+		})
+
+		it("warns once, naming the replacement", () => {
+			setInputs({dryrun: "true"})
+			const warnings = warningsFrom(() => utils.isDryRun())
+
+			expect(warnings).toHaveLength(1)
+			expect(warnings[0]).toContain("Input 'dryrun' is deprecated")
+			expect(warnings[0]).toContain("Use 'dry-run' instead.")
+		})
+
+		it("warns even when set to false, because the input was still used", () => {
+			setInputs({dryrun: "false"})
+			expect(warningsFrom(() => expect(utils.isDryRun()).toBe(false))).toHaveLength(1)
+		})
+
+		it("stays silent when only the new input is used", () => {
+			setInputs({"dry-run": "true"})
+			expect(warningsFrom(() => utils.isDryRun())).toEqual([])
+		})
+
+		it("stays silent when neither input is used", () => {
+			expect(warningsFrom(() => utils.isDryRun())).toEqual([])
+		})
+
+		it("loses to dry-run when the two disagree", () => {
+			setInputs({"dry-run": "false", dryrun: "true"})
+			const warnings = warningsFrom(() => expect(utils.isDryRun()).toBe(false))
+
+			expect(warnings).toHaveLength(2)
+			expect(warnings[1]).toBe("Inputs 'dry-run' and 'dryrun' disagree. Using 'dry-run'.")
+		})
+
+		it("does not warn about a conflict when the two agree", () => {
+			setInputs({"dry-run": "true", dryrun: "true"})
+			const warnings = warningsFrom(() => expect(utils.isDryRun()).toBe(true))
+
+			expect(warnings).toHaveLength(1)
+			expect(warnings.some(entry => entry.includes("disagree"))).toBe(false)
+		})
+	})
+
+	describe("nointuit", () => {
+		// nointuit was inverted rather than renamed, so the shim flips it.
+		it("disables intuition when true", () => {
+			setInputs({nointuit: "true"})
+			expect(warningsFrom(() => expect(utils.shouldInferType()).toBe(false))).toHaveLength(1)
+		})
+
+		it("leaves intuition enabled when false", () => {
+			setInputs({nointuit: "false"})
+			expect(warningsFrom(() => expect(utils.shouldInferType()).toBe(true))).toHaveLength(1)
+		})
+
+		it("warns that the replacement is inverted", () => {
+			setInputs({nointuit: "true"})
+			const warnings = warningsFrom(() => utils.shouldInferType())
+
+			expect(warnings[0]).toContain("Input 'nointuit' is deprecated")
+			expect(warnings[0]).toContain("Use 'infer-type' instead.")
+			expect(warnings[0]).toContain("'nointuit: true' is equivalent to 'infer-type: false'")
+		})
+
+		it("stays silent when only the new input is used", () => {
+			setInputs({"infer-type": "false"})
+			expect(warningsFrom(() => utils.shouldInferType())).toEqual([])
+		})
+
+		it("stays silent when neither input is used", () => {
+			expect(warningsFrom(() => utils.shouldInferType())).toEqual([])
+		})
+
+		it("loses to infer-type when the two disagree", () => {
+			setInputs({"infer-type": "true", nointuit: "true"})
+			const warnings = warningsFrom(() => expect(utils.shouldInferType()).toBe(true))
+
+			expect(warnings).toHaveLength(2)
+			expect(warnings[1]).toBe("Inputs 'infer-type' and 'nointuit' disagree. Using 'infer-type'.")
+		})
+
+		it("does not warn about a conflict when the two agree", () => {
+			setInputs({"infer-type": "false", nointuit: "true"})
+			const warnings = warningsFrom(() => expect(utils.shouldInferType()).toBe(false))
+
+			expect(warnings).toHaveLength(1)
+			expect(warnings.some(entry => entry.includes("disagree"))).toBe(false)
+		})
 	})
 })
 
@@ -270,10 +411,7 @@ describe("effectiveNameAndType", () => {
 			expect(utils.effectiveNameAndType()).toEqual(["nightly build", "stable"])
 		})
 
-		// KNOWN BUG: the legacy pattern is case insensitive but returns the raw
-		// match, so the release type reaches the API in the caller's casing.
-		// Flip this to it() once effectiveNameAndType lowercases the match.
-		it.fails("lowercases a suffix matched case insensitively", () => {
+		it("lowercases a suffix matched case insensitively", () => {
 			setInputs({version: "build_42-BETA"})
 			expect(utils.effectiveNameAndType()).toEqual(["build_42", "beta"])
 		})
@@ -281,13 +419,24 @@ describe("effectiveNameAndType", () => {
 
 	describe("with intuition disabled", () => {
 		it("keeps the version and defaults the type to stable", () => {
-			setInputs({version: "1.2.3-beta", nointuit: "true"})
+			setInputs({version: "1.2.3-beta", "infer-type": "false"})
 			expect(utils.effectiveNameAndType()).toEqual(["1.2.3-beta", "stable"])
 		})
 
 		it("still honours an explicit type", () => {
-			setInputs({version: "1.2.3-beta", nointuit: "true", type: "private"})
+			setInputs({version: "1.2.3-beta", "infer-type": "false", type: "private"})
 			expect(utils.effectiveNameAndType()).toEqual(["1.2.3-beta", "private"])
+		})
+
+		it("is still disabled by the deprecated nointuit input", () => {
+			const log = new WorkflowLog()
+			setInputs({version: "1.2.3-beta", nointuit: "true"})
+			log.start()
+			try {
+				expect(utils.effectiveNameAndType()).toEqual(["1.2.3-beta", "stable"])
+			} finally {
+				log.stop()
+			}
 		})
 	})
 

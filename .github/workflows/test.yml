@@ -89,11 +89,21 @@ jobs:
           type: private
           path: test/test.zip
           changelog: "Dry run from ${{ github.sha }}."
-          dryrun: "true"
+          dry-run: "true"
 
-      # An empty type is what lets the action intuit the release type from the
-      # version string; the action.yml default would otherwise suppress it.
+      # type is omitted entirely here: with no default in action.yml, that is
+      # what lets the action intuit the release type from the version string.
       - name: Dry Run With An Intuited Type
+        uses: ./
+        with:
+          product: "${{ env.PRODUCT }}"
+          token: "${{ env.TOKEN }}"
+          version: "1.2.3-beta"
+          path: test/test.zip
+          dry-run: "true"
+
+      # An explicitly empty type must behave the same as an omitted one.
+      - name: Dry Run With An Empty Type
         uses: ./
         with:
           product: "${{ env.PRODUCT }}"
@@ -101,6 +111,18 @@ jobs:
           version: "1.2.3-beta"
           type: ""
           path: test/test.zip
+          dry-run: "true"
+
+      # The deprecated names must keep working; this is the only place the
+      # action.yml wiring for them is exercised.
+      - name: Dry Run With Deprecated Input Names
+        uses: ./
+        with:
+          product: "${{ env.PRODUCT }}"
+          token: "${{ env.TOKEN }}"
+          version: "1.2.3-beta"
+          path: test/test.zip
+          nointuit: "true"
           dryrun: "true"
 
       - name: Dry Run With An Invalid Product
@@ -112,7 +134,7 @@ jobs:
           token: "${{ env.TOKEN }}"
           version: "1.2.3"
           path: test/test.zip
-          dryrun: "true"
+          dry-run: "true"
 
       - name: Dry Run With A Missing Archive
         id: missing-archive
@@ -123,7 +145,7 @@ jobs:
           token: "${{ env.TOKEN }}"
           version: "1.2.3"
           path: test/does-not-exist.zip
-          dryrun: "true"
+          dry-run: "true"
 
       - name: Assert Invalid Input Fails The Action
         run: |
