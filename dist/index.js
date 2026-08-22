@@ -2505,6 +2505,9 @@ function getBaseUrl() {
   if (url === "") {
     url = "https://api.gmodstore.com/v3/";
   }
+  if (!url.endsWith("/")) {
+    url += "/";
+  }
   return new URL(url);
 }
 function isDryRun() {
@@ -2671,8 +2674,8 @@ ${err}`);
   newVersion.append("file", new Blob([fs2.readFileSync(path)]), path);
   newVersion.append("releaseType", releaseType);
   if (!dry) {
-    console.log(`${baseUrl}products/${product}/versions`);
-    let response = await fetch(`${baseUrl}products/${product}/versions`, {
+    const endpoint = new URL(`products/${product}/versions`, baseUrl);
+    let response = await fetch(endpoint, {
       method: "POST",
       body: newVersion,
       headers: {

@@ -165,6 +165,11 @@ describe("getBaseUrl", () => {
 		expect(utils.getBaseUrl().toString()).toBe("http://127.0.0.1:8080/v3/")
 	})
 
+	it("appends a missing trailing slash", () => {
+		setInputs({baseurl: "http://127.0.0.1:8080/v3"})
+		expect(utils.getBaseUrl().toString()).toBe("http://127.0.0.1:8080/v3/")
+	})
+
 	it("rejects a malformed URL", () => {
 		setInputs({baseurl: "not a url"})
 		expect(thrownBy(() => utils.getBaseUrl())).toBeInstanceOf(TypeError)
