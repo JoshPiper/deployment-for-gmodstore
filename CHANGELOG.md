@@ -5,6 +5,28 @@ around them was rebased, so they are grouped by release rather than pinned
 precisely to each tag.
 -->
 
+## [2.0.0](https://github.com/JoshPiper/deployment-for-gmodstore/compare/v1.0.4...v2.0.0) (2026-08-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* the action now runs on the node24 runtime, which requires a runner new enough to provide it. Self-hosted runners may need updating.
+* the type input no longer defaults to stable, so a workflow supplying a pre-release version without an explicit type now resolves the release type from the version string rather than always publishing to stable. version: "1.2.3-beta" with no type previously uploaded the name "1.2.3-beta" to stable, and now uploads the name "1.2.3" to beta. Pass type explicitly, or infer-type: false, to keep the previous behaviour.
+
+### Bug Fixes
+
+* fail the action when an error response cannot be decoded ([#359](https://github.com/JoshPiper/deployment-for-gmodstore/issues/359)) ([46e1fa5](https://github.com/JoshPiper/deployment-for-gmodstore/commit/46e1fa5ce50f8daf37e89bf4f1e32258e93352b4))
+
+
+### Build System
+
+* rebuild the build system on esbuild, targeting node 24 ([#361](https://github.com/JoshPiper/deployment-for-gmodstore/issues/361)) ([60863bd](https://github.com/JoshPiper/deployment-for-gmodstore/commit/60863bd4b463e2b475dd11c2afb3f73ac0fb9e47))
+
+
+### Code Refactoring
+
+* stop defaulting type, and rename release-type internals and inputs ([#360](https://github.com/JoshPiper/deployment-for-gmodstore/issues/360)) ([0965456](https://github.com/JoshPiper/deployment-for-gmodstore/commit/096545689282356d3e66584ea431ed0f80ee018b))
+
 ## [1.0.4](https://github.com/JoshPiper/deployment-for-gmodstore/compare/v1.0.3...v1.0.4) (2025-09-23)
 
 
@@ -88,6 +110,3 @@ precisely to each tag.
 ### Bug Fixes
 
 * Fixed Version-Type error. ([#19](https://github.com//JoshPiper/GModStore-Deployment/issues/19)) ([9e1eca0](https://github.com//JoshPiper/GModStore-Deployment/commit/9e1eca0bd8a278cf507d6d8eec9bef471f29a40b))
-
-
-
