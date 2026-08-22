@@ -34,3 +34,11 @@ inputs:
     description: "API Base URL"
     required: true
     default: "https://api.gmodstore.com/v3/"
+  dryrun:
+    description: "Run every step except the upload itself, for validating a workflow without publishing."
+    required: false
+    default: "false"
+  nointuit:
+    description: "Disable intuiting the release type from the version string, using only the type input."
+    required: false
+    default: "false"
