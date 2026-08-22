@@ -132,7 +132,9 @@ async function main(){
 	newVersion.append("releaseType", releaseType)
 
 	if (!dry){
-		const endpoint = new URL(`products/${product}/versions`, baseUrl)
+ 		const endpoint = new URL(`products/${product}/versions`, baseUrl)
+       		 core.info(endpoint.toString())
+
 		// No content-type header: fetch derives it from the FormData, and
 		// setting it by hand would drop the multipart boundary.
 		let response = await fetch(endpoint, {

@@ -1,4 +1,4 @@
-import {getInput, warning, InputOptions} from "@actions/core"
+import {getInput, warning, InputOptions, debug} from "@actions/core"
 import {validate as validUUID} from "uuid"
 import {parse} from "semver"
 import {statSync, type Stats} from "node:fs"
@@ -192,9 +192,9 @@ export function effectiveNameAndType(): [string, ReleaseType] {
 	}
 
 	if (infer){
-		console.log("Intuiting")
+		debug("Intuiting")
 		const ver = parse(raw)
-		console.log(ver)
+		debug(String(ver))
 		if (ver !== null){
 			let last: string | number | null = null
 			const parsed = new Map<string, number>()
@@ -216,12 +216,12 @@ export function effectiveNameAndType(): [string, ReleaseType] {
 			if (last){
 				parsed.set(last, 0)
 			}
-			console.log(parsed)
+			debug(JSON.stringify([...parsed]))
 			for (const suffix of RELEASE_TYPES.toReversed()){
 				if (parsed.has(suffix)){
-					console.log(`has ${suffix}`)
+					debug(`has ${suffix}`)
 					if (parsed.size !== 1 || parsed.get(suffix) !== 0){
-						console.log("returning")
+						debug("returning")
 						return [ver.raw, suffix]
 					} else {
 						ver.prerelease = []
