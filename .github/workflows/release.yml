@@ -1,0 +1,149 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Two releases running at once would race over the release branch and the
+# floating tags.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release PR
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: "${{ steps.release.outputs.release_created }}"
+      tag_name: "${{ steps.release.outputs.tag_name }}"
+      major: "${{ steps.release.outputs.major }}"
+      minor: "${{ steps.release.outputs.minor }}"
+      # Empty when there is nothing to release, which is what every downstream
+      # job keys off. The fallback keeps fromJSON from erroring on that case.
+      pr_branch: "${{ fromJSON(steps.release.outputs.pr || '{}').headBranchName }}"
+    steps:
+      # A PAT rather than GITHUB_TOKEN: actions taken by the default token do
+      # not fire pull_request events, so the release PR would sit there without
+      # any of the checks in test.yml having run on it.
+      - name: Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: "${{ secrets.RELEASE_PLEASE_TOKEN }}"
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  bundle:
+    name: Bundle
+    needs: release-please
+    if: needs.release-please.outputs.pr_branch != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Release Branch
+        uses: actions/checkout@v7
+        with:
+          ref: "${{ needs.release-please.outputs.pr_branch }}"
+          token: "${{ secrets.RELEASE_PLEASE_TOKEN }}"
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      # Merging the release PR tags and publishes with no further checks, so
+      # anything able to fail a release has to fail here instead. verify ends
+      # with the build, which is what leaves dist/ fresh for the commit below.
+      - name: Verify
+        run: npm run verify
+
+      # release-please force-pushes the release branch every time it
+      # regenerates, so the bundle has to be re-committed by the same run that
+      # regenerated it. Committing here rather than on every pull request keeps
+      # the bundle out of feature diffs, where it conflicts constantly.
+      - name: Commit Bundle
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist
+          if git diff --staged --quiet; then
+            echo "Bundle is unchanged."
+          else
+            git commit -m "build: rebuild the action bundle"
+            git push
+          fi
+
+  staging:
+    name: Staging Release
+    needs:
+      - release-please
+      - bundle
+    if: needs.release-please.outputs.pr_branch != ''
+    runs-on: ubuntu-latest
+    steps:
+      # Picks up the bundle the previous job just pushed.
+      - name: Checkout Release Branch
+        uses: actions/checkout@v7
+        with:
+          ref: "${{ needs.release-please.outputs.pr_branch }}"
+
+      # The manifest is the only place the pending version exists. The
+      # release-please outputs only carry a version once a release has actually
+      # been created, which has not happened yet at this point.
+      - name: Read Pending Version
+        id: version
+        run: echo "version=$(jq -r '.["."]' .release-please-manifest.json)" >> "$GITHUB_OUTPUT"
+
+      # Deliberately no build step: this runs the committed bundle, which is
+      # the artifact consumers actually execute. Building here would test
+      # something other than what ships.
+      #
+      # The run number keeps the version unique, because release-please
+      # regenerates this branch several times per release and GModStore will not
+      # accept the same version name twice. type is explicit because "-ci.N" is
+      # not a suffix infer-type recognises.
+      - name: Upload To Staging
+        uses: ./
+        with:
+          product: "${{ secrets.GMS_ADDON_ID }}"
+          token: "${{ secrets.GMS_TOKEN }}"
+          version: "${{ steps.version.outputs.version }}-ci.${{ github.run_number }}"
+          type: private
+          path: test/test.zip
+          changelog: "Staging rehearsal for ${{ steps.version.outputs.version }}, from ${{ github.sha }}."
+
+  tag-floating:
+    name: Floating Tags
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: "${{ secrets.RELEASE_PLEASE_TOKEN }}"
+
+      # Consumers pin @v2 or @v2.1 and expect them to follow the newest matching
+      # release. release-please only creates the exact tag.
+      - name: Move Floating Tags
+        env:
+          TAG: "${{ needs.release-please.outputs.tag_name }}"
+          MAJOR: "v${{ needs.release-please.outputs.major }}"
+          MINOR: "v${{ needs.release-please.outputs.major }}.${{ needs.release-please.outputs.minor }}"
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f "$MAJOR" "$TAG"
+          git tag -f "$MINOR" "$TAG"
+          git push -f origin "refs/tags/$MAJOR" "refs/tags/$MINOR"
