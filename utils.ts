@@ -11,7 +11,7 @@ import {parse} from "semver"
 const RELEASE_TYPES = ['demo', 'stable', 'beta', 'alpha', 'private'] as const
 type ReleaseType = typeof RELEASE_TYPES[number]
 const RELEASE_TYPE_SET = new Set<ReleaseType>(RELEASE_TYPES)
-const RELEASE_TYPE_REGEX = /(.*?)-(stable|beta|alpha|private|demo)$/gi
+const RELEASE_TYPE_REGEX = /(.*?)-(stable|beta|alpha|private|demo)$/i
 
 const defaultOptions: InputOptions & ((extra: Partial<InputOptions>) => InputOptions) = function (this: Partial<InputOptions>, extra: Partial<InputOptions>): InputOptions {
 	return {...this, ...extra}
