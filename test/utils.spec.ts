@@ -440,10 +440,7 @@ describe("effectiveNameAndType", () => {
 		})
 	})
 
-	// KNOWN BUG: VERSION_REGEX carries the /g flag, so exec() resumes from the
-	// previous match and the same input yields a different answer second time.
-	// Flip this to it() once the flag is dropped.
-	it.fails("is idempotent for a legacy version name", () => {
+	it("is idempotent for a legacy version name", () => {
 		setInputs({version: "build_42-beta"})
 		const first = utils.effectiveNameAndType()
 		const second = utils.effectiveNameAndType()
