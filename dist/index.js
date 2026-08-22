@@ -32430,27 +32430,27 @@ async function reportFailure(response) {
     }
 }
 async function main() {
-    let token, product, version, versionType, path, changelog, baseUrl;
-    const dry = (0, utils_1.dry)();
+    let token, product, versionName, releaseType, path, changelog, baseUrl;
+    const dry = (0, utils_1.isDryRun)();
     try {
-        token = (0, utils_1.token)();
-        product = (0, utils_1.product)();
-        let v = (0, utils_1.effectiveNameVersion)();
-        version = v[0];
-        versionType = v[1];
-        path = (0, utils_1.path)();
-        changelog = (0, utils_1.changelog)();
-        baseUrl = (0, utils_1.baseUrl)();
+        token = (0, utils_1.getToken)();
+        product = (0, utils_1.getProduct)();
+        const resolved = (0, utils_1.effectiveNameAndType)();
+        versionName = resolved[0];
+        releaseType = resolved[1];
+        path = (0, utils_1.getPath)();
+        changelog = (0, utils_1.getChangelog)();
+        baseUrl = (0, utils_1.getBaseUrl)();
     }
     catch (err) {
         (0, core_1.setFailed)(`An error occured during input processing.\n${err}`);
         return;
     }
     let newVersion = new formdata_node_1.FormData();
-    newVersion.append("name", version);
+    newVersion.append("name", versionName);
     newVersion.append("changelog", changelog);
     newVersion.append("file", new Blob([fs.readFileSync(path)]), path);
-    newVersion.append("releaseType", versionType);
+    newVersion.append("releaseType", releaseType);
     let encoder = new form_data_encoder_1.FormDataEncoder(newVersion);
     if (!dry) {
         console.log(`${baseUrl}products/${product}/versions`);
@@ -32478,105 +32478,159 @@ exports["default"] = main;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.token = token;
-exports.product = product;
-exports.version = version;
-exports.hasType = hasType;
-exports.type = type;
-exports.path = path;
-exports.changelog = changelog;
-exports.baseUrl = baseUrl;
-exports.dry = dry;
-exports.nointuit = nointuit;
-exports.effectiveNameVersion = effectiveNameVersion;
+exports.getToken = getToken;
+exports.getProduct = getProduct;
+exports.getVersionName = getVersionName;
+exports.hasReleaseType = hasReleaseType;
+exports.getReleaseType = getReleaseType;
+exports.getPath = getPath;
+exports.getChangelog = getChangelog;
+exports.getBaseUrl = getBaseUrl;
+exports.isDryRun = isDryRun;
+exports.shouldInferType = shouldInferType;
+exports.effectiveNameAndType = effectiveNameAndType;
 const core_1 = __nccwpck_require__(7484);
 const uuid_1 = __nccwpck_require__(764);
 const semver_1 = __nccwpck_require__(2088);
 /**
- * List of version suffixes, ordered in MOST to LEAST public.
+ * List of release types, ordered in MOST to LEAST public.
  * Demo is accessible to all users.
  * Stable is accessible to all purchasers.
  * Etc
  */
-const VERSIONS = ['demo', 'stable', 'beta', 'alpha', 'private'];
-const VERSION_MAP = new Set(VERSIONS);
-const VERSION_REGEX = /(.*?)-(stable|beta|alpha|private|demo)$/gi;
+const RELEASE_TYPES = ['demo', 'stable', 'beta', 'alpha', 'private'];
+const RELEASE_TYPE_SET = new Set(RELEASE_TYPES);
+const RELEASE_TYPE_REGEX = /(.*?)-(stable|beta|alpha|private|demo)$/gi;
 const defaultOptions = function (extra) {
     return { ...this, ...extra };
 };
 defaultOptions.required = true;
 defaultOptions.trimWhitespace = true;
 const optional = defaultOptions({ required: false });
-function token() {
+/**
+ * Parse a boolean input, falling back when it is unset or unrecognised.
+ */
+function asBool(value, fallback) {
+    const normalised = value.trim().toLowerCase();
+    if (normalised === "true") {
+        return true;
+    }
+    else if (normalised === "false") {
+        return false;
+    }
+    return fallback;
+}
+/**
+ * Read a deprecated input, warning if it has been supplied.
+ * These inputs must not carry a default in action.yml, as an always-present
+ * replacement would permanently shadow the deprecated name.
+ */
+function legacyInput(name, replacement, extra = "") {
+    const value = (0, core_1.getInput)(name, optional);
+    if (value !== "") {
+        (0, core_1.warning)(`Input '${name}' is deprecated and will be removed in a future major release. Use '${replacement}' instead.${extra}`);
+    }
+    return value;
+}
+function getToken() {
     return (0, core_1.getInput)("token", defaultOptions);
 }
-function product() {
+function getProduct() {
     let pid = (0, core_1.getInput)("product", defaultOptions);
     if (!(0, uuid_1.validate)(pid)) {
         throw "Input 'product' is not a valid UUID.";
     }
     return pid;
 }
-function version() {
+/**
+ * The raw version input, which is uploaded as the version's name.
+ */
+function getVersionName() {
     return (0, core_1.getInput)("version", defaultOptions);
 }
-function hasType() {
+function hasReleaseType() {
     return (0, core_1.getInput)("type", optional).toLowerCase() !== "";
 }
-function type() {
+function getReleaseType() {
     const type = (0, core_1.getInput)("type", optional).toLowerCase();
     if (type === "") {
         return "stable";
     }
-    else if (VERSION_MAP.has(type)) {
+    else if (RELEASE_TYPE_SET.has(type)) {
         return type;
     }
-    throw `Input 'type' must be one of ${[...VERSION_MAP.keys()].join(", ")}, got "${type}"`;
+    throw `Input 'type' must be one of ${RELEASE_TYPES.join(", ")}, got "${type}"`;
 }
-function path() {
+function getPath() {
     const path = (0, core_1.getInput)("path", defaultOptions);
     if (!path.endsWith(".zip")) {
         throw "Input path must end in .zip";
     }
     return path;
 }
-function changelog() {
+function getChangelog() {
     const log = (0, core_1.getInput)("changelog", optional);
     if (log === "") {
         return "No changelog provided.";
     }
     return log;
 }
-function baseUrl() {
+function getBaseUrl() {
     let url = (0, core_1.getInput)("baseurl", optional);
     if (url === "") {
         url = "https://api.gmodstore.com/v3/";
     }
     return new URL(url);
 }
-function dry() {
-    return (0, core_1.getInput)("dryrun", optional).toLowerCase() === "true";
-}
 /**
- * Set if we should disable intuiting versions, and instead only use the type input.
+ * Set if we should handle all the prep, but refrain from the actual upload.
+ * Accepts the deprecated 'dryrun' input.
  */
-function nointuit() {
-    return (0, core_1.getInput)("nointuit", optional).toLowerCase() === "true";
+function isDryRun() {
+    const legacy = legacyInput("dryrun", "dry-run");
+    const current = (0, core_1.getInput)("dry-run", optional);
+    if (current !== "") {
+        if (legacy !== "" && asBool(current, false) !== asBool(legacy, false)) {
+            (0, core_1.warning)("Inputs 'dry-run' and 'dryrun' disagree. Using 'dry-run'.");
+        }
+        return asBool(current, false);
+    }
+    return asBool(legacy, false);
 }
 /**
- * Get the effective name and version to upload.
+ * Set if we should infer the release type from the version input.
+ * Accepts the deprecated 'nointuit' input, which carries the inverse meaning.
+ */
+function shouldInferType() {
+    const legacy = legacyInput("nointuit", "infer-type", " Note that the two are inverted: 'nointuit: true' is equivalent to 'infer-type: false'.");
+    const current = (0, core_1.getInput)("infer-type", optional);
+    const legacyInfer = !asBool(legacy, false);
+    if (current !== "") {
+        const infer = asBool(current, true);
+        if (legacy !== "" && infer !== legacyInfer) {
+            (0, core_1.warning)("Inputs 'infer-type' and 'nointuit' disagree. Using 'infer-type'.");
+        }
+        return infer;
+    }
+    if (legacy !== "") {
+        return legacyInfer;
+    }
+    return true;
+}
+/**
+ * Get the effective name and release type to upload.
  * First, attempt to parse as semver.
- * If a single, non-numbered, pre-release version is encountered, which is a valid suffix, it is removed and used as the version type.
+ * If a single, non-numbered, pre-release version is encountered, which is a valid suffix, it is removed and used as the release type.
  * Otherwise, use the legacy regex.
  * Lastly, fall back to type input.
  */
-function effectiveNameVersion() {
-    const intuit = !nointuit();
-    const raw = version();
-    if (hasType()) {
-        return [version(), type()];
+function effectiveNameAndType() {
+    const infer = shouldInferType();
+    const raw = getVersionName();
+    if (hasReleaseType()) {
+        return [raw, getReleaseType()];
     }
-    if (intuit) {
+    if (infer) {
         console.log("Intuiting");
         const ver = (0, semver_1.parse)(raw);
         console.log(ver);
@@ -32602,7 +32656,7 @@ function effectiveNameVersion() {
                 parsed.set(last, 0);
             }
             console.log(parsed);
-            for (const suffix of VERSIONS.toReversed()) {
+            for (const suffix of RELEASE_TYPES.toReversed()) {
                 if (parsed.has(suffix)) {
                     console.log(`has ${suffix}`);
                     if (parsed.size !== 1 || parsed.get(suffix) !== 0) {
@@ -32616,12 +32670,12 @@ function effectiveNameVersion() {
                 }
             }
         }
-        const res = VERSION_REGEX.exec(version());
+        const res = RELEASE_TYPE_REGEX.exec(raw);
         if (res !== null) {
-            return [res[1], res[2]];
+            return [res[1], res[2].toLowerCase()];
         }
     }
-    return [version(), type()];
+    return [raw, getReleaseType()];
 }
 
 
