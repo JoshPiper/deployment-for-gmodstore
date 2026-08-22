@@ -22,7 +22,6 @@ inputs:
   type:
     description: "The type of version to deploy. Can be stable, beta, alpha, private or demo. If omitted, uses '-type' at the end of version string (if it exists), otherwise uses stable"
     required: false
-    default: "stable"
   changelog:
     description: "Markdown formatted changelog."
     required: true
@@ -34,11 +33,17 @@ inputs:
     description: "API Base URL"
     required: true
     default: "https://api.gmodstore.com/v3/"
+  dry-run:
+    description: "Run every step except the upload itself, for validating a workflow without publishing. Defaults to false."
+    required: false
+  infer-type:
+    description: "Intuit the release type from the version string, falling back to the type input. Defaults to true."
+    required: false
   dryrun:
-    description: "Run every step except the upload itself, for validating a workflow without publishing."
+    description: "Deprecated: use 'dry-run' instead."
     required: false
-    default: "false"
+    deprecationMessage: "The 'dryrun' input is deprecated. Use 'dry-run' instead."
   nointuit:
-    description: "Disable intuiting the release type from the version string, using only the type input."
+    description: "Deprecated: use 'infer-type' instead. The two are inverted, so 'nointuit: true' is equivalent to 'infer-type: false'."
     required: false
-    default: "false"
+    deprecationMessage: "The 'nointuit' input is deprecated. Use 'infer-type: false' instead."
