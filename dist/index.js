@@ -32349,6 +32349,86 @@ const formdata_node_1 = __nccwpck_require__(4859);
 // @ts-ignore
 const form_data_encoder_1 = __nccwpck_require__(3414);
 const stream_1 = __nccwpck_require__(2203);
+/** How much of an undecodable response body to put in the workflow log. */
+const BODY_LOG_LIMIT = 500;
+/** Log the underlying cause of a decode failure, when it is loggable. */
+function logCause(err) {
+    if (err instanceof Error || typeof err === "string") {
+        core.error(err);
+    }
+}
+/** The response body, trimmed to something a workflow log can reasonably carry. */
+function excerpt(raw) {
+    const body = raw.trim();
+    if (body.length <= BODY_LOG_LIMIT) {
+        return body;
+    }
+    return `${body.slice(0, BODY_LOG_LIMIT)}... (${body.length} bytes total)`;
+}
+/**
+ * Decode the body of a non-2xx response, or undefined if it cannot be decoded.
+ *
+ * The body is read as text and parsed by hand rather than through
+ * response.json(), so that an undecodable body - typically an HTML error page
+ * served by a proxy or CDN during an outage - can still be shown in the log.
+ */
+async function decodeErrorBody(response) {
+    let raw;
+    try {
+        raw = await response.text();
+    }
+    catch (err) {
+        core.warning("An error occurred whilst reading the response body.");
+        logCause(err);
+        return undefined;
+    }
+    let body;
+    try {
+        body = JSON.parse(raw);
+    }
+    catch (err) {
+        core.warning("An error occurred whilst decoding the JSON response.");
+        core.warning("This shouldn't normally happen, and suggests an issue with the API itself.");
+        logCause(err);
+        core.warning(raw.trim() === "" ? "The response body was empty." : `The response body was: ${excerpt(raw)}`);
+        return undefined;
+    }
+    if (typeof body !== "object" || body === null) {
+        core.warning("The API returned a JSON response which was not an object.");
+        core.warning(`The response body was: ${excerpt(raw)}`);
+        return undefined;
+    }
+    return body;
+}
+/**
+ * Report a failed upload to the workflow.
+ *
+ * Every path out of here calls setFailed: an upload which did not happen must
+ * never leave the job green, however unreadable the API's response was.
+ */
+async function reportFailure(response) {
+    const body = await decodeErrorBody(response);
+    if (body === undefined) {
+        core.setFailed(`An error occurred during upload, with HTTP code ${response.status} and an undecodable body.`);
+        return;
+    }
+    core.setFailed(`An error occurred during upload, with HTTP code ${response.status} and message "${body.message}".`);
+    if (body.errors) {
+        for (let id of Object.keys(body.errors)) {
+            let errs = body.errors[id];
+            let leng = errs.length;
+            if (leng === 1) {
+                core.error(`An error occurred in the ${id} field`);
+            }
+            else {
+                core.error(`Errors occurred in the ${id} field`);
+            }
+            for (let i = 0; i < leng; i++) {
+                core.error(errs[i]);
+            }
+        }
+    }
+}
 async function main() {
     let token, product, version, versionType, path, changelog, baseUrl;
     const dry = (0, utils_1.dry)();
@@ -32383,34 +32463,7 @@ async function main() {
             }
         });
         if (response.status < 200 || response.status >= 300) {
-            let body;
-            try {
-                body = await response.json();
-            }
-            catch (e) {
-                core.warning("An error occurred whilst decoding the JSON response.");
-                core.warning("This shouldn't normally happen, and suggests an issue with the API itself.");
-                if (e instanceof Error || typeof e === "string") {
-                    core.error(e);
-                }
-                return;
-            }
-            core.setFailed(`An error occurred during upload, with HTTP code ${response.status} and message "${body.message}".`);
-            if (body.errors) {
-                for (let id of Object.keys(body.errors)) {
-                    let errs = body.errors[id];
-                    let leng = errs.length;
-                    if (leng === 1) {
-                        core.error(`An error occurred in the ${id} field`);
-                    }
-                    else {
-                        core.error(`Errors occurred in the ${id} field`);
-                    }
-                    for (let i = 0; i < leng; i++) {
-                        core.error(errs[i]);
-                    }
-                }
-            }
+            await reportFailure(response);
         }
     }
 }
