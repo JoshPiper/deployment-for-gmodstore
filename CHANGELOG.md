@@ -1,3 +1,48 @@
+<!--
+Entries for 1.0.2 through 1.0.4 were reconstructed after the fact: those
+versions were tagged while no changelog plugin was configured, and the history
+around them was rebased, so they are grouped by release rather than pinned
+precisely to each tag.
+-->
+
+## [1.0.4](https://github.com/JoshPiper/deployment-for-gmodstore/compare/v1.0.3...v1.0.4) (2025-09-23)
+
+
+### Bug Fixes
+
+* Explicitly catch and exit from errors in the main function. ([830fa44](https://github.com/JoshPiper/deployment-for-gmodstore/commit/830fa44))
+* Remove orphaned form data declaration. ([5f2672d](https://github.com/JoshPiper/deployment-for-gmodstore/commit/5f2672d))
+
+
+### Build System
+
+* Run a full package update. ([a5592b4](https://github.com/JoshPiper/deployment-for-gmodstore/commit/a5592b4))
+
+
+
+## [1.0.3](https://github.com/JoshPiper/deployment-for-gmodstore/compare/v1.0.2...v1.0.3) (2023-10-05)
+
+
+### Bug Fixes
+
+* Don't follow redirects. ([d23d20a](https://github.com/JoshPiper/deployment-for-gmodstore/commit/d23d20a))
+
+
+
+## [1.0.2](https://github.com/JoshPiper/deployment-for-gmodstore/compare/v1.0.1...v1.0.2) (2023-10-05)
+
+
+### Bug Fixes
+
+* Correct the default base URL. ([c17e725](https://github.com/JoshPiper/deployment-for-gmodstore/commit/c17e725))
+
+
+### Build System
+
+* Build from TypeScript automatically during release. ([#67](https://github.com/JoshPiper/deployment-for-gmodstore/issues/67))
+
+
+
 ## [1.0.1](https://github.com//JoshPiper/GModStore-Deployment/compare/v1.0.0...v1.0.1) (2023-07-23)
 
 

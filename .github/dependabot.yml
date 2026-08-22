@@ -5,3 +5,19 @@ updates:
     schedule:
       interval: "daily"
     versioning-strategy: "increase-if-necessary"
+
+    # Production bumps are bundled into dist/index.js, so they are a real change
+    # for consumers: "build" is a visible changelog type and cuts a patch
+    # release. Development bumps never reach the bundle, so they use "chore",
+    # which the changelog hides and which releases nothing.
+    commit-message:
+      prefix: "build"
+      prefix-development: "chore"
+      include: "scope"
+
+    # One pull request per side, rather than one per package.
+    groups:
+      production:
+        dependency-type: "production"
+      development:
+        dependency-type: "development"
