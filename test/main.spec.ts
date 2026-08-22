@@ -2,7 +2,7 @@ import {readFileSync} from "node:fs"
 import {join} from "node:path"
 import {afterEach, beforeEach, describe, expect, it} from "vitest"
 import {main} from "../main"
-import {actionFailed, setInputs, WorkflowLog} from "./helpers/actions"
+import {actionFailed, OutputFile, setInputs, WorkflowLog} from "./helpers/actions"
 import {type MockGmodStore, startMockApi} from "./helpers/api"
 
 const PRODUCT = "46529d74-df19-4297-865f-6d11b6a787fd"
@@ -11,6 +11,7 @@ const TOKEN = "gms_test_token"
 
 let api: MockGmodStore
 let log: WorkflowLog
+let outputs: OutputFile
 
 /** The inputs a real workflow would supply, before any per-test overrides. */
 function useInputs(overrides: Record<string, string | undefined> = {}): void {
@@ -29,9 +30,12 @@ beforeEach(async () => {
 	api = await startMockApi()
 	log = new WorkflowLog()
 	log.start()
+	outputs = new OutputFile()
+	outputs.start()
 })
 
 afterEach(async () => {
+	outputs.stop()
 	log.stop()
 	await api.stop()
 })
@@ -79,6 +83,78 @@ describe("a successful upload", () => {
 	it("does not fail the action", () => {
 		expect(actionFailed()).toBe(false)
 		expect(log.errors).toEqual([])
+	})
+
+	it("confirms the upload in the log", () => {
+		expect(log.raw).toContain(`Uploaded version "mock" as a stable release.`)
+	})
+})
+
+describe("reporting a successful upload", () => {
+	const CREATED = {
+		status: 201,
+		body: {
+			data: {
+				id: "1a3d0a4a-0f14-4d4c-93d3-3a3e5e0a9d2f",
+				name: "1.2.3",
+				releaseType: "beta",
+				changelog: "## 1.2.3",
+				fileSize: 1024,
+				fileHash: "deadbeef",
+				createdAt: "2026-08-23T00:00:00Z",
+				updatedAt: "2026-08-23T00:00:00Z"
+			}
+		}
+	}
+
+	// The type can be inferred rather than stated, so the log has to say which
+	// channel the version actually landed in.
+	it("names the version and release type it uploaded", async () => {
+		api.willReply(CREATED)
+		useInputs({version: "1.2.3-beta"})
+		await main()
+
+		expect(log.raw).toContain(`Uploaded version "1.2.3" as a beta release.`)
+	})
+
+	it("logs the ID the API assigned", async () => {
+		api.willReply(CREATED)
+		useInputs({version: "1.2.3-beta"})
+		await main()
+
+		expect(log.raw).toContain("Version ID: 1a3d0a4a-0f14-4d4c-93d3-3a3e5e0a9d2f")
+	})
+
+	it("sets the outputs from the response", async () => {
+		api.willReply(CREATED)
+		useInputs({version: "1.2.3-beta"})
+		await main()
+
+		expect(outputs.all).toEqual({
+			"version-id": "1a3d0a4a-0f14-4d4c-93d3-3a3e5e0a9d2f",
+			"version-name": "1.2.3",
+			"release-type": "beta"
+		})
+	})
+
+	// The API is the authority on what it stored, so a value it sends back
+	// wins over the one the action worked out from the inputs.
+	it("prefers the API's name and type over the resolved ones", async () => {
+		api.willReply({status: 201, body: {data: {...CREATED.body.data, name: "1.2.3 (renamed)", releaseType: "alpha"}}})
+		useInputs({version: "1.2.3-beta"})
+		await main()
+
+		expect(outputs.get("version-name")).toBe("1.2.3 (renamed)")
+		expect(outputs.get("release-type")).toBe("alpha")
+	})
+
+	it("does not set the outputs when the upload failed", async () => {
+		api.willReply({status: 422, body: {message: "Validation failed"}})
+		useInputs()
+		await main()
+
+		expect(actionFailed()).toBe(true)
+		expect(outputs.all).toEqual({})
 	})
 })
 
@@ -180,6 +256,18 @@ describe("a dry run", () => {
 
 		expect(api.requests).toHaveLength(0)
 		expect(actionFailed()).toBe(true)
+	})
+
+	it("reports what it would have uploaded, with no version ID", async () => {
+		useInputs({"dry-run": "true", version: "1.2.3-beta"})
+		await main()
+
+		expect(log.raw).toContain(`Dry run: would upload version "1.2.3" as a beta release.`)
+		expect(outputs.all).toEqual({
+			"version-id": "",
+			"version-name": "1.2.3",
+			"release-type": "beta"
+		})
 	})
 
 	it("still requires the zip to exist", async () => {
@@ -348,15 +436,49 @@ describe("an API error with a non-JSON body", () => {
 	})
 })
 
-describe("a successful upload with a non-JSON body", () => {
+// The mirror image of the error path: the upload has already happened, so an
+// unreadable body must cost the outputs their API values and nothing more.
+describe("a successful upload with an unreadable body", () => {
+	const UNDECODABLE = {status: 201, contentType: "text/html", body: "<h1>Created</h1>"}
+
 	it("succeeds without inspecting the body", async () => {
-		api.willReply({status: 201, contentType: "text/html", body: "<h1>Created</h1>"})
+		api.willReply(UNDECODABLE)
 		useInputs()
 		await main()
 
 		expect(actionFailed()).toBe(false)
 		expect(log.errors).toEqual([])
 		expect(log.warnings).toEqual([])
+	})
+
+	it("still confirms the upload, from the resolved inputs", async () => {
+		api.willReply(UNDECODABLE)
+		useInputs({version: "1.2.3-beta"})
+		await main()
+
+		expect(log.raw).toContain(`Uploaded version "1.2.3" as a beta release.`)
+	})
+
+	it("still sets the name and type outputs, leaving the ID empty", async () => {
+		api.willReply(UNDECODABLE)
+		useInputs({version: "1.2.3-beta"})
+		await main()
+
+		expect(outputs.all).toEqual({
+			"version-id": "",
+			"version-name": "1.2.3",
+			"release-type": "beta"
+		})
+	})
+
+	it("does not fail on a 2xx body which carries no version object", async () => {
+		api.willReply({status: 201, body: {data: null}})
+		useInputs()
+		await main()
+
+		expect(actionFailed()).toBe(false)
+		expect(log.warnings).toEqual([])
+		expect(outputs.get("version-id")).toBe("")
 	})
 })
 
