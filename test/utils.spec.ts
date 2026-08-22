@@ -20,14 +20,40 @@ beforeEach(async () => {
 })
 
 describe("getToken", () => {
+	/**
+	 * getToken emits ::add-mask::, so every call is captured: letting it through
+	 * would mask the fixture token in a real workflow run of the suite.
+	 */
+	function maskedBy(fn: () => unknown): string[] {
+		const log = new WorkflowLog()
+		log.start()
+		try {
+			fn()
+		} finally {
+			log.stop()
+		}
+
+		return log.messages("add-mask")
+	}
+
 	it("returns the supplied token", () => {
 		setInputs({token: "gms_secret"})
-		expect(utils.getToken()).toBe("gms_secret")
+		maskedBy(() => expect(utils.getToken()).toBe("gms_secret"))
 	})
 
 	it("trims surrounding whitespace", () => {
 		setInputs({token: "  gms_secret\n"})
-		expect(utils.getToken()).toBe("gms_secret")
+		maskedBy(() => expect(utils.getToken()).toBe("gms_secret"))
+	})
+
+	it("registers the token as a secret, so it is masked in the log", () => {
+		setInputs({token: "gms_secret"})
+		expect(maskedBy(() => utils.getToken())).toContain("gms_secret")
+	})
+
+	it("masks the trimmed value, which is what the request carries", () => {
+		setInputs({token: "  gms_secret\n"})
+		expect(maskedBy(() => utils.getToken())).toContain("gms_secret")
 	})
 
 	it("rejects a missing token", () => {
