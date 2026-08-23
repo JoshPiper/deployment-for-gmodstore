@@ -10,6 +10,11 @@ Bug fixes are welcome straight as a pull request. For a new input, or a change
 to how the action behaves, please open an issue first — it is a small thing to
 ask and it beats finding out at review time that the scope was wrong.
 
+You do not need a formal sign-off for most of it. A maintainer replying on the
+issue without deferring or closing it is enough to start work on a fix or a
+small feature. A major one — a new area of behaviour, or anything that moves the
+public interface below — wants an explicit yes before you write the code.
+
 The short version: `npm ci`, make the change, `npm run verify`, open a pull
 request.
 
@@ -53,7 +58,7 @@ Two settings in `.npmrc` look like mistakes and are not:
 | `index.ts` | Entrypoint. Calls `main()` and turns an unhandled rejection into a non-zero exit. |
 | `main.ts` | The upload itself: builds the request, sends it, interprets the response. |
 | `utils.ts` | Input reading and validation, including release type inference. |
-| `action.yml` | Input and output declarations. Changing an input means changing this and `utils.ts`. |
+| `action.yml` | Input and output declarations. The public interface — see [Making A Change](#the-public-interface). |
 | `test/` | Vitest specs, plus helpers that fake the Actions runtime and a real HTTP server. |
 | `scripts/build.mts` | The esbuild bundler. Run by Node directly; there is no build step for the build. |
 | `dist/` | Generated at release time. See [Releases](#releases). |
@@ -62,6 +67,32 @@ The build and CI helper scripts are TypeScript that Node runs directly, so the
 tooling has no build step of its own.
 
 ## Making A Change
+
+### The Public Interface
+
+`action.yml` is the public API. Every input, output and default in it is
+something a consumer's workflow already depends on, and it is tracked under
+semver — so what you do to it decides the prefix your pull request needs:
+
+- Adding an optional input, or a new output, is a feature: `feat:`, minor bump.
+- Renaming or removing an input, making an optional one required, or changing a
+  default is breaking: `feat!:` or a `BREAKING CHANGE:` footer, and it waits for
+  a major.
+- Tightening validation or fixing behaviour without moving the contract is
+  `fix:`.
+
+Changing an input touches more places than it looks. All of them, in one list:
+
+- `action.yml`, for the declaration.
+- `utils.ts`, for the reading and validation.
+- A test, or the coverage thresholds will fail you.
+- A step in the Dry Run job, in `.github/workflows/test.yml`.
+- The input table in `README.md`, which is what consumers actually read.
+
+Nothing is renamed in place. Deprecate instead: keep the old name working as an
+alias, warn when it is used, and drop it in the next major. `dryrun` and
+`nointuit` are the standing examples — both still work, both warn, and both have
+to keep doing so until a major says otherwise.
 
 ### Style
 
@@ -107,9 +138,6 @@ fakes the Actions runtime and captures the workflow commands the action emits,
 and `test/helpers/api.ts` stands up a real local HTTP server to assert on what
 went over the wire. Prefer them to stubbing `fetch`.
 
-Adding or changing an input means touching `action.yml` and `utils.ts` together.
-The deprecated `dryrun` and `nointuit` aliases have to keep working.
-
 `test/live.spec.ts` uploads a real private version to GModStore and is skipped
 unless both `GMS_LIVE=1` and `GMS_TOKEN` are set. You do not need it, and CI
 never runs it.
@@ -140,8 +168,8 @@ Two jobs run on a pull request:
   explicit release type, an inferred one, an empty one, the deprecated input
   names, and two cases that are expected to fail.
 
-If you add an input or change how the action fails, add a step to the Dry Run
-job to cover it.
+If you change how the action fails, add a step to the Dry Run job to cover it.
+Adding an input has its own checklist, above.
 
 ## Releases
 
