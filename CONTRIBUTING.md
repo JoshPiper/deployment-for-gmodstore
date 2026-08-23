@@ -6,8 +6,12 @@
 > every other open pull request, and will be asked to be taken back out. CI
 > builds from source on every push, so your change is already proven to bundle.
 
-Bug fixes and new inputs are welcome. The short version: `npm ci`, make the
-change, `npm run verify`, open a pull request.
+Bug fixes are welcome straight as a pull request. For a new input, or a change
+to how the action behaves, please open an issue first — it is a small thing to
+ask and it beats finding out at review time that the scope was wrong.
+
+The short version: `npm ci`, make the change, `npm run verify`, open a pull
+request.
 
 ## Getting Set Up
 
@@ -72,6 +76,25 @@ you are in:
 
 Please don't add a formatter or stylistic lint rules as part of an unrelated
 change.
+
+### Dependencies
+
+Everything is bundled into `dist/`, so a runtime dependency is bundle size and
+supply-chain surface for every workflow using the action. Reach for `node:`
+built-ins first; if a dependency is still the right answer, say why in the pull
+request. There is no approval step for one.
+
+Watch out for `ignore-scripts=true`: a dependency that relies on a postinstall
+script will not run it. esbuild gets away with it because its platform binary
+arrives through an optional dependency instead.
+
+### Portability
+
+CI runs on `ubuntu-latest`, but consumers can run this action on any runner
+GitHub offers. Our test matrix is not the support matrix: use `node:path` rather
+than joining path strings, don't assume a POSIX shell, and don't assume
+case-sensitive filenames. A Linux-only assumption passes every check here and
+then breaks someone's Windows release pipeline.
 
 ### Tests
 
