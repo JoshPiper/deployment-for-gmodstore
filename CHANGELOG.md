@@ -5,6 +5,20 @@ around them was rebased, so they are grouped by release rather than pinned
 precisely to each tag.
 -->
 
+## [2.1.1](https://github.com/JoshPiper/deployment-for-gmodstore/compare/v2.1.0...v2.1.1) (2026-08-23)
+
+
+### Bug Fixes
+
+* let utils.ts own the changelog default ([#375](https://github.com/JoshPiper/deployment-for-gmodstore/issues/375)) ([#393](https://github.com/JoshPiper/deployment-for-gmodstore/issues/393)) ([cc0beda](https://github.com/JoshPiper/deployment-for-gmodstore/commit/cc0beda0bedecf4aeaa1516d9eac10bbad61da64))
+* spell 'occurred' correctly in input-processing error ([#394](https://github.com/JoshPiper/deployment-for-gmodstore/issues/394)) ([16cb13f](https://github.com/JoshPiper/deployment-for-gmodstore/commit/16cb13f7dff45f6d0d285050b589d2feafb98dd9))
+* throw InputError instead of bare strings for input validation ([#388](https://github.com/JoshPiper/deployment-for-gmodstore/issues/388)) ([9dd6319](https://github.com/JoshPiper/deployment-for-gmodstore/commit/9dd6319ee4a682715b68d7a2e08abb4135822e59)), closes [#372](https://github.com/JoshPiper/deployment-for-gmodstore/issues/372)
+
+
+### Documentation
+
+* add a contributing guide, and close the dist/ trap it surfaced ([#392](https://github.com/JoshPiper/deployment-for-gmodstore/issues/392)) ([a865a06](https://github.com/JoshPiper/deployment-for-gmodstore/commit/a865a06d75a7fbce08197917e03a8095f589b33e))
+
 ## [2.1.0](https://github.com/JoshPiper/deployment-for-gmodstore/compare/v2.0.0...v2.1.0) (2026-08-22)
 
 
