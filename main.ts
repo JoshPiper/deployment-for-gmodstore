@@ -188,9 +188,9 @@ async function main(){
 		versionName = resolved[0]
 		releaseType = resolved[1]
 		path = getPath()
-		// Read here, inside the guard, so an I/O error fails the action the same
+		// Opened here, inside the guard, so an I/O error fails the action the same
 		// way a bad input does rather than escaping main() as a stack trace.
-		archive = fs.readFileSync(path)
+		archive = await fs.openAsBlob(path)
 		changelog = getChangelog()
 		baseUrl = getBaseUrl()
 	} catch (err){
@@ -210,7 +210,7 @@ async function main(){
 	let newVersion = new FormData()
 	newVersion.append("name", versionName)
 	newVersion.append("changelog", changelog)
-	newVersion.append("file", new Blob([archive]), basename(path))
+	newVersion.append("file", archive, basename(path))
 	newVersion.append("releaseType", releaseType)
 
 	if (!dry){
