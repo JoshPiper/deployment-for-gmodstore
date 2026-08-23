@@ -79,12 +79,16 @@ describe("getProduct", () => {
 
 	it("rejects a non-UUID", () => {
 		setInputs({product: "12345"})
-		expect(thrownBy(() => utils.getProduct())).toBe("Input 'product' is not a valid UUID.")
+		const err = thrownBy(() => utils.getProduct())
+		expect(err).toBeInstanceOf(utils.InputError)
+		expect((err as Error).message).toBe("Input 'product' is not a valid UUID.")
 	})
 
 	it("rejects a UUID with a bad version nibble", () => {
 		setInputs({product: "46529d74-df19-9297-865f-6d11b6a787fd"})
-		expect(thrownBy(() => utils.getProduct())).toBe("Input 'product' is not a valid UUID.")
+		const err = thrownBy(() => utils.getProduct())
+		expect(err).toBeInstanceOf(utils.InputError)
+		expect((err as Error).message).toBe("Input 'product' is not a valid UUID.")
 	})
 
 	it("rejects a missing product", () => {
@@ -141,8 +145,9 @@ describe("getReleaseType", () => {
 
 	it("rejects an unknown type", () => {
 		setInputs({type: "gamma"})
-		expect(thrownBy(() => utils.getReleaseType()))
-			.toBe("Input 'type' must be one of demo, stable, beta, alpha, private, got \"gamma\"")
+		const err = thrownBy(() => utils.getReleaseType())
+		expect(err).toBeInstanceOf(utils.InputError)
+		expect((err as Error).message).toBe("Input 'type' must be one of demo, stable, beta, alpha, private, got \"gamma\"")
 	})
 })
 
@@ -155,7 +160,9 @@ describe("getPath", () => {
 	it("rejects a path which does not exist", () => {
 		const missing = join(process.cwd(), "test", "does-not-exist.zip")
 		setInputs({path: missing})
-		expect(thrownBy(() => utils.getPath())).toBe(`Input 'path' does not exist: ${missing}`)
+		const err = thrownBy(() => utils.getPath())
+		expect(err).toBeInstanceOf(utils.InputError)
+		expect((err as Error).message).toBe(`Input 'path' does not exist: ${missing}`)
 	})
 
 	it("rejects a path which is not a regular file", () => {
@@ -163,7 +170,9 @@ describe("getPath", () => {
 		mkdirSync(dir)
 		try {
 			setInputs({path: dir})
-			expect(thrownBy(() => utils.getPath())).toBe(`Input 'path' is not a file: ${dir}`)
+			const err = thrownBy(() => utils.getPath())
+			expect(err).toBeInstanceOf(utils.InputError)
+			expect((err as Error).message).toBe(`Input 'path' is not a file: ${dir}`)
 		} finally {
 			rmSync(dir, {recursive: true, force: true})
 		}
@@ -171,14 +180,18 @@ describe("getPath", () => {
 
 	it("rejects a non-zip path", () => {
 		setInputs({path: "build/addon.tar.gz"})
-		expect(thrownBy(() => utils.getPath())).toBe("Input path must end in .zip")
+		const err = thrownBy(() => utils.getPath())
+		expect(err).toBeInstanceOf(utils.InputError)
+		expect((err as Error).message).toBe("Input path must end in .zip")
 	})
 
 	// Documents current behaviour: the suffix check is case sensitive, so an
 	// uppercase extension from a Windows build step is rejected.
 	it("rejects an uppercase .ZIP extension", () => {
 		setInputs({path: "build/ADDON.ZIP"})
-		expect(thrownBy(() => utils.getPath())).toBe("Input path must end in .zip")
+		const err = thrownBy(() => utils.getPath())
+		expect(err).toBeInstanceOf(utils.InputError)
+		expect((err as Error).message).toBe("Input path must end in .zip")
 	})
 
 	it("rejects a missing path", () => {
@@ -395,7 +408,7 @@ describe("effectiveNameAndType", () => {
 
 		it("rejects an invalid type", () => {
 			setInputs({version: "1.2.3", type: "gamma"})
-			expect(thrownBy(() => utils.effectiveNameAndType())).toBeTypeOf("string")
+			expect(thrownBy(() => utils.effectiveNameAndType())).toBeInstanceOf(utils.InputError)
 		})
 	})
 

@@ -19,9 +19,6 @@ export default tseslint.config(
 		rules: {
 			// prefer-const is a style call, and this codebase has settled on let.
 			"prefer-const": "off",
-			// The action throws bare strings for input errors and formats them
-			// into the workflow log; that is the established convention here.
-			"@typescript-eslint/only-throw-error": "off",
 			"@typescript-eslint/no-unused-vars": ["error", {
 				argsIgnorePattern: "^_",
 				varsIgnorePattern: "^_"

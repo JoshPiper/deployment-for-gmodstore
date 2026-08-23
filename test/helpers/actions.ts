@@ -196,8 +196,8 @@ export function actionFailed(): boolean {
 /**
  * Run fn and return whatever it threw, or undefined if it did not throw.
  *
- * utils throws bare strings rather than Errors, which expect().toThrow()
- * cannot match on, so tests assert against the thrown value directly.
+ * Lets tests assert against the thrown value directly - its type, its
+ * message, or both - rather than only the substring expect().toThrow() matches.
  */
 export function thrownBy(fn: () => unknown): unknown {
 	try {
