@@ -2,10 +2,11 @@
 
 > [!IMPORTANT]
 > Don't commit `dist/`. It is the bundle GitHub executes, but it is regenerated
-> only when a release is cut. A rebuilt bundle in a feature branch conflicts with
-> every other open pull request, and a reviewer will ask you to take it back
-> out. CI builds from source on every push, so your change is already proven to
-> bundle.
+> only when a release is cut, and a rebuilt one in a feature branch conflicts
+> with every other open pull request. `npm run verify` builds into a throwaway
+> directory and won't touch your working tree; `npm run build` does write to
+> `dist/`, so leave the result out of your commit if you run it. CI fails a pull
+> request that changes it either way.
 
 Bug fixes are welcome straight as a pull request. For a new input, or a change
 to how the action behaves, please open an issue first — it is a small thing to
@@ -43,8 +44,9 @@ Two settings in `.npmrc` look like mistakes and are not:
 
 | Command | Does |
 |---------|------|
-| `npm run verify` | Everything the Unit job runs: lint, typecheck, tests with coverage, bundle. |
+| `npm run verify` | Everything the Unit job runs: lint, typecheck, tests with coverage, bundle check. |
 | `npm run build` | Bundle the action into `dist/`. |
+| `npm run build:check` | Bundle into a temporary directory, leaving `dist/` alone. |
 | `npm run build:watch` | Rebuild the bundle on change. |
 | `npm run clean` | Remove `dist/`. |
 | `npm test` | Unit tests. |

@@ -10,13 +10,32 @@
  * build step for the build.
  */
 import {build, context, type BuildOptions, type Metafile, type Plugin} from "esbuild"
-import {readFile, rm, readdir, writeFile} from "node:fs/promises"
+import {mkdtemp, readFile, rm, readdir, writeFile} from "node:fs/promises"
+import {tmpdir} from "node:os"
 import {dirname, join, resolve} from "node:path"
 import {fileURLToPath} from "node:url"
 import {parseArgs} from "node:util"
 
+const {values} = parseArgs({options: {
+	clean: {type: "boolean", default: false},
+	watch: {type: "boolean", default: false},
+	check: {type: "boolean", default: false}
+}})
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..")
-const DIST = join(ROOT, "dist")
+
+/**
+ * Where the bundle is written.
+ *
+ * dist/ is tracked but only regenerated at release time, so a contributor
+ * running the pre-pull-request checks must not be left with it modified: the
+ * staged result conflicts with every other open pull request. --check builds
+ * into a throwaway directory instead, which proves the bundle still builds
+ * without touching the working tree.
+ */
+const DIST = values.check
+	? await mkdtemp(join(tmpdir(), "deployment-for-gmodstore-"))
+	: join(ROOT, "dist")
 const BUNDLE = join(DIST, "index.js")
 const LICENSES = join(DIST, "licenses.txt")
 
@@ -224,11 +243,6 @@ async function assertRuntimeMatchesManifest(): Promise<void> {
 	}
 }
 
-const {values} = parseArgs({options: {
-	clean: {type: "boolean", default: false},
-	watch: {type: "boolean", default: false}
-}})
-
 if (values.clean){
 	await clean()
 	console.log("Removed dist.")
@@ -241,12 +255,18 @@ if (values.clean){
 } else {
 	await assertRuntimeMatchesManifest()
 	await clean()
-	const result = await build(options)
-	if (result.metafile === undefined){
-		throw new Error("esbuild produced no metafile, so licences cannot be collected.")
-	}
+	try {
+		const result = await build(options)
+		if (result.metafile === undefined){
+			throw new Error("esbuild produced no metafile, so licences cannot be collected.")
+		}
 
-	// esbuild keys outputs by a path relative to the working directory.
-	const [outfile] = Object.keys(result.metafile.outputs).filter(key => key.endsWith("index.js"))
-	await writeLicenses(result.metafile, outfile)
+		// esbuild keys outputs by a path relative to the working directory.
+		const [outfile] = Object.keys(result.metafile.outputs).filter(key => key.endsWith("index.js"))
+		await writeLicenses(result.metafile, outfile)
+	} finally {
+		if (values.check){
+			await rm(DIST, {recursive: true, force: true})
+		}
+	}
 }

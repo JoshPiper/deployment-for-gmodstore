@@ -60,9 +60,9 @@ jobs:
   bundle-guard:
     name: Bundle Guard
     # The bundle is regenerated at release time, so a rebuilt dist/ in a feature
-    # branch conflicts with every other open pull request. Contributors hit this
-    # by accident: npm run verify ends in a build, which dirties a tracked file,
-    # and git add -A then stages it. Catch it here rather than at review.
+    # branch conflicts with every other open pull request. verify no longer
+    # dirties the working tree, but npm run build still does, so catch a staged
+    # bundle here rather than at review.
     #
     # The release branch is exempt: committing the bundle there is the whole
     # point of the bundle job in release.yml.

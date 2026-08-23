@@ -62,10 +62,15 @@ jobs:
         run: npm ci
 
       # Merging the release PR tags and publishes with no further checks, so
-      # anything able to fail a release has to fail here instead. verify ends
-      # with the build, which is what leaves dist/ fresh for the commit below.
+      # anything able to fail a release has to fail here instead.
       - name: Verify
         run: npm run verify
+
+      # verify builds into a throwaway directory so it never dirties a
+      # contributor's working tree, which means the bundle has to be built for
+      # real here before the commit below can pick it up.
+      - name: Build Action Bundle
+        run: npm run build
 
       # release-please force-pushes the release branch every time it
       # regenerates, so the bundle has to be re-committed by the same run that
