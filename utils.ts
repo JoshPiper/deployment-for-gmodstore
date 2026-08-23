@@ -23,6 +23,18 @@ defaultOptions.trimWhitespace = true
 const optional = defaultOptions({required: false})
 
 /**
+ * Thrown for input the caller supplied that failed validation.
+ * Lets main() report these cleanly through setFailed and reserve a logged
+ * stack for faults it did not expect.
+ */
+export class InputError extends Error {
+	constructor(message: string) {
+		super(message)
+		this.name = "InputError"
+	}
+}
+
+/**
  * Parse a boolean input, falling back when it is unset or unrecognised.
  */
 function asBool(value: string, fallback: boolean): boolean {
@@ -66,7 +78,7 @@ export function getProduct(): string {
 	let pid = getInput("product", defaultOptions)
 
 	if (!validUUID(pid)){
-		throw "Input 'product' is not a valid UUID."
+		throw new InputError("Input 'product' is not a valid UUID.")
 	}
 
 	return pid
@@ -91,13 +103,13 @@ export function getReleaseType(): ReleaseType {
 		return <ReleaseType>type
 	}
 
-	throw `Input 'type' must be one of ${RELEASE_TYPES.join(", ")}, got "${type}"`
+	throw new InputError(`Input 'type' must be one of ${RELEASE_TYPES.join(", ")}, got "${type}"`)
 }
 
 export function getPath(): string {
 	const path = getInput("path", defaultOptions)
 	if (!path.endsWith(".zip")){
-		throw "Input path must end in .zip"
+		throw new InputError("Input path must end in .zip")
 	}
 
 	// Checked here, alongside the other input validation, so that a bad path is
@@ -106,11 +118,11 @@ export function getPath(): string {
 	try {
 		stats = statSync(path)
 	} catch {
-		throw `Input 'path' does not exist: ${path}`
+		throw new InputError(`Input 'path' does not exist: ${path}`)
 	}
 
 	if (!stats.isFile()){
-		throw `Input 'path' is not a file: ${path}`
+		throw new InputError(`Input 'path' is not a file: ${path}`)
 	}
 
 	return path

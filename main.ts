@@ -8,7 +8,8 @@ import {
 	getPath,
 	getChangelog,
 	getBaseUrl,
-	isDryRun
+	isDryRun,
+	InputError
 } from "./utils";
 import {setFailed} from "@actions/core"
 
@@ -193,7 +194,16 @@ async function main(){
 		changelog = getChangelog()
 		baseUrl = getBaseUrl()
 	} catch (err){
-		setFailed(`An error occured during input processing.\n${err}`)
+		if (err instanceof InputError){
+			setFailed(`An error occured during input processing.\n${err.message}`)
+		} else {
+			// Only a genuine fault reaches here: an InputError carries nothing a
+			// stack would add, but this might be the only record of one that does.
+			if (err instanceof Error && err.stack){
+				core.debug(err.stack)
+			}
+			setFailed(`An error occured during input processing.\n${err}`)
+		}
 		return
 	}
 
