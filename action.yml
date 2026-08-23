@@ -23,9 +23,8 @@ inputs:
     description: "The type of version to deploy. Can be stable, beta, alpha, private or demo. If omitted, uses '-type' at the end of version string (if it exists), otherwise uses stable"
     required: false
   changelog:
-    description: "Markdown formatted changelog."
-    required: true
-    default: "No changelog."
+    description: "Markdown formatted changelog. Defaults to 'No changelog provided.' when omitted."
+    required: false
   path:
     description: "Path to the addon. This must be in zip format."
     required: true
