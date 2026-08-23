@@ -3,9 +3,9 @@
 > [!IMPORTANT]
 > Don't commit `dist/`. It is the bundle GitHub executes, but it is regenerated
 > only when a release is cut. A rebuilt bundle in a feature branch conflicts with
-> every other open pull request, and a reviewer will ask you to take it back out.
-> CI
-> builds from source on every push, so your change is already proven to bundle.
+> every other open pull request, and a reviewer will ask you to take it back
+> out. CI builds from source on every push, so your change is already proven to
+> bundle.
 
 Bug fixes are welcome straight as a pull request. For a new input, or a change
 to how the action behaves, please open an issue first — it is a small thing to
@@ -13,8 +13,9 @@ ask and it beats finding out at review time that the scope was wrong.
 
 You don't need a formal sign-off for most changes. A maintainer replying on the
 issue without deferring or closing it is enough to start work on a fix or a
-small feature. A major one — a new area of behaviour, or anything that moves the
-public interface described below — wants an explicit yes before you write the code.
+small feature. A major one — a new area of behaviour, or anything that moves
+the public interface described below — wants an explicit yes before you write
+the code.
 
 The short version: `npm ci`, make the change, `npm run verify`, open a pull
 request.
@@ -53,8 +54,7 @@ Two settings in `.npmrc` look like mistakes and are not:
 | `npm run typecheck` | `tsc --noEmit`. |
 
 `npm run verify` is exactly what the Unit job runs, so if it passes locally that
-job should agree. The Dry Run job is not covered by it and only runs in CI —
-budget for a round trip when you change something it exercises.
+job should agree. It does not cover the Dry Run job, which only runs in CI.
 
 ## Where Things Live
 
@@ -82,7 +82,8 @@ semver — so what you do to it decides the prefix your pull request needs:
 - Tightening validation or fixing behaviour without moving the contract is
   `fix:`.
 
-Changing an input touches more places than you would expect. All of them, in one list:
+Changing an input touches more places than you would expect. All of them, in
+one list:
 
 - `action.yml`, for the declaration.
 - `utils.ts`, for the reading and validation.
@@ -93,9 +94,9 @@ Changing an input touches more places than you would expect. All of them, in one
 Nothing is renamed in place — a rename is an alias plus a deprecation, not an
 edit. Add the new name, keep the old one working as an alias, warn when it is
 used, and let the major drop it. That part ships as a `feat:` like any other
-addition; only the removal is breaking. `dryrun` and
-`nointuit` are the standing examples — both still work, both warn, and both have
-to keep doing so until a major says otherwise.
+addition; only the removal is breaking. `dryrun` and `nointuit` are the standing
+examples — both still work, both warn, and both have to keep doing so until a
+major says otherwise.
 
 ### Style
 
@@ -120,16 +121,17 @@ stack goes to `core.debug` first — an `InputError` has nothing a stack would a
 but a real one might leave no other record. Throw `InputError` for bad input and
 let `main()` do the reporting; don't call `process.exit`.
 
-The token is passed to `setSecret` the moment it is read, because the runner masks
-only `secrets.*` on its own — a token that arrives from `vars.*`, from an
-expression, or as a literal is not masked. Keep it that way, and don't add logging that echoes it:
-no request headers, no full request dumps. Response bodies go through the
-existing excerpt helper, which caps how much reaches the log.
+The token is passed to `setSecret` the moment it is read, because the runner
+masks only `secrets.*` on its own — a token that arrives from `vars.*`, from an
+expression, or as a literal is not masked. Keep it that way, and don't add
+logging that echoes it: no request headers, no full request dumps. Response
+bodies go through the existing excerpt helper, which caps how much reaches the
+log.
 
 ### Dependencies
 
-Everything is bundled into `dist/`, so every runtime dependency adds bundle
-size and supply-chain surface to every workflow using the action. Reach for `node:`
+Everything is bundled into `dist/`, so every runtime dependency adds bundle size
+and supply-chain surface to every workflow using the action. Reach for `node:`
 built-ins first; if a dependency is still the right answer, say why in the pull
 request. There is no approval step for adding one.
 
@@ -159,8 +161,8 @@ When a line genuinely cannot be covered — a defensive branch, or a platform pa
 this Linux CI cannot reach — mark it `/* v8 ignore next */`, or wrap a longer run
 in `/* v8 ignore start */` and `/* v8 ignore stop */`, and say why in the pull
 request. That is the way out; don't lower the thresholds to make a change fit.
-Use it sparingly. An ignore comment on code that could have been tested is
-worse than a missing test, because it stops anyone noticing.
+Use it sparingly. An ignore comment on code that could have been tested is worse
+than a missing test, because it stops anyone noticing.
 
 Two helpers exist so you rarely need to mock anything: `test/helpers/actions.ts`
 fakes the Actions runtime and captures the workflow commands the action emits,
@@ -208,8 +210,8 @@ log.
 
 ## Releases
 
-Not something a contributor does, but the process explains two things you
-will notice.
+Not something a contributor does, but the process explains two things you will
+notice.
 
 release-please opens a release pull request from the commits on `main`. While
 that pull request is open, CI rebuilds and commits `dist/` onto its branch and
