@@ -108,6 +108,21 @@ you are in:
 Please don't add a formatter or stylistic lint rules as part of an unrelated
 change.
 
+### Failing And Logging
+
+The action reports failures, it does not crash. Anything the caller got wrong
+throws `InputError` from `utils.ts`; `main()` catches it and reports the message
+through `setFailed`. Anything else reaching that catch is a genuine fault, so its
+stack goes to `core.debug` first — an `InputError` has nothing a stack would add,
+but a real one might leave no other record. Throw `InputError` for bad input and
+let `main()` do the reporting; don't call `process.exit`.
+
+The token is passed to `setSecret` the moment it is read, because the runner only
+masks `secrets.*` by itself — a token arriving from `vars.*`, an expression or a
+literal is not masked. Keep it that way, and don't add logging that echoes it:
+no request headers, no full request dumps. Response bodies go through the
+existing excerpt helper, which caps how much reaches the log.
+
 ### Dependencies
 
 Everything is bundled into `dist/`, so a runtime dependency is bundle size and
