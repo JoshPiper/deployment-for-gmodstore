@@ -145,12 +145,22 @@ than joining path strings, don't assume a POSIX shell, and don't assume
 case-sensitive filenames. A Linux-only assumption passes every check here and
 then breaks someone's Windows release pipeline.
 
+The flip side is that CI cannot exercise the paths you write for other runners.
+That is what the ignore comment under [Tests](#tests) is for.
+
 ### Tests
 
 Vitest, in `test/**/*.spec.ts`. Coverage is enforced over `main.ts` and
 `utils.ts`, taken together rather than per file — 97% lines, 97% statements, 92%
 branches, 100% functions — so a new branch without a test fails CI rather than
 merely being untidy.
+
+When a line genuinely cannot be covered — a defensive branch, or a platform path
+this Linux CI cannot reach — mark it `/* v8 ignore next */`, or wrap a longer run
+in `/* v8 ignore start */` and `/* v8 ignore stop */`, and say why in the pull
+request. That is the way out; don't lower the thresholds to make a change fit.
+Use it sparingly. An ignore comment on code that could have been tested is
+worse than a missing test, because it stops anyone noticing.
 
 Two helpers exist so you rarely need to mock anything: `test/helpers/actions.ts`
 fakes the Actions runtime and captures the workflow commands the action emits,
