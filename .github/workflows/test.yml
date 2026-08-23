@@ -57,6 +57,41 @@ jobs:
           path: coverage/
           retention-days: 7
 
+  bundle-guard:
+    name: Bundle Guard
+    # The bundle is regenerated at release time, so a rebuilt dist/ in a feature
+    # branch conflicts with every other open pull request. Contributors hit this
+    # by accident: npm run verify ends in a build, which dirties a tracked file,
+    # and git add -A then stages it. Catch it here rather than at review.
+    #
+    # The release branch is exempt: committing the bundle there is the whole
+    # point of the bundle job in release.yml.
+    if: >-
+      github.event_name == 'pull_request' &&
+      !startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Fail On A Rebuilt Bundle
+        env:
+          BASE: "${{ github.event.pull_request.base.sha }}"
+          HEAD: "${{ github.event.pull_request.head.sha }}"
+        run: |
+          changed="$(git diff --name-only "$BASE" "$HEAD" -- dist)"
+          if [ -z "$changed" ]; then
+            echo "No bundle changes."
+            exit 0
+          fi
+
+          echo "::error::This pull request changes dist/, which is generated at release time and must not be committed. Restore it with 'git checkout $BASE -- dist' and push again. See CONTRIBUTING.md."
+          echo "Files:"
+          echo "$changed"
+          exit 1
+
   dry-run:
     name: Dry Run
     # Pull requests additionally exercise the bundled action end to end, which
