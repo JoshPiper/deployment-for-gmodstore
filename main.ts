@@ -195,14 +195,14 @@ async function main(){
 		baseUrl = getBaseUrl()
 	} catch (err){
 		if (err instanceof InputError){
-			setFailed(`An error occured during input processing.\n${err.message}`)
+			setFailed(`An error occurred during input processing.\n${err.message}`)
 		} else {
 			// Only a genuine fault reaches here: an InputError carries nothing a
 			// stack would add, but this might be the only record of one that does.
 			if (err instanceof Error && err.stack){
 				core.debug(err.stack)
 			}
-			setFailed(`An error occured during input processing.\n${err}`)
+			setFailed(`An error occurred during input processing.\n${err}`)
 		}
 		return
 	}

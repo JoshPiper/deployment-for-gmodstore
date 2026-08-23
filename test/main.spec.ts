@@ -204,7 +204,7 @@ describe("input handling", () => {
 
 		expect(api.requests).toHaveLength(0)
 		expect(actionFailed()).toBe(true)
-		expect(log.errors.join("\n")).toContain("An error occured during input processing.")
+		expect(log.errors.join("\n")).toContain("An error occurred during input processing.")
 	})
 
 	it("fails without uploading when a required input is missing", async () => {
@@ -221,7 +221,7 @@ describe("input handling", () => {
 
 		expect(api.requests).toHaveLength(0)
 		expect(actionFailed()).toBe(true)
-		expect(log.errors.join("\n")).toContain("An error occured during input processing.")
+		expect(log.errors.join("\n")).toContain("An error occurred during input processing.")
 		expect(log.errors.join("\n")).toContain("does not exist")
 	})
 
