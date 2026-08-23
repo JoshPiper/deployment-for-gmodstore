@@ -128,6 +128,12 @@ export function getPath(): string {
 	return path
 }
 
+/**
+ * The changelog uploaded alongside the version.
+ * The fallback lives here rather than in action.yml: a manifest default is
+ * always present, which would make this branch unreachable and let the two
+ * strings drift apart.
+ */
 export function getChangelog(): string {
 	const log = getInput("changelog", optional)
 	if (log === ""){

@@ -1,4 +1,4 @@
-import {mkdirSync, mkdtempSync, rmSync} from "node:fs"
+import {mkdirSync, mkdtempSync, readFileSync, rmSync} from "node:fs"
 import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {beforeEach, describe, expect, it, vi} from "vitest"
@@ -199,7 +199,19 @@ describe("getPath", () => {
 	})
 })
 
+/**
+ * The fallback lives in utils.ts, not action.yml. A manifest default would
+ * always be present, so the empty-string branch below would never run outside
+ * the suite and the two strings could drift apart unnoticed.
+ */
 describe("getChangelog", () => {
+	it("is not defaulted by action.yml, so the fallback is reachable", () => {
+		const manifest = readFileSync(join(process.cwd(), "action.yml"), "utf8")
+		const block = manifest.match(/^ {2}changelog:\n(?: {4}.*\n)*/m)
+		expect(block).not.toBeNull()
+		expect(block?.[0]).not.toMatch(/^ {4}default:/m)
+	})
+
 	it("returns the supplied changelog", () => {
 		setInputs({changelog: "## 1.0.0\n- Things"})
 		expect(utils.getChangelog()).toBe("## 1.0.0\n- Things")
