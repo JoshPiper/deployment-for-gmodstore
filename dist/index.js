@@ -2495,6 +2495,12 @@ var defaultOptions = function(extra) {
 defaultOptions.required = true;
 defaultOptions.trimWhitespace = true;
 var optional = defaultOptions({ required: false });
+var InputError = class extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "InputError";
+  }
+};
 function asBool(value, fallback) {
   const normalised = value.trim().toLowerCase();
   if (normalised === "true") {
@@ -2519,7 +2525,7 @@ function getToken() {
 function getProduct() {
   let pid = getInput("product", defaultOptions);
   if (!validate_default(pid)) {
-    throw "Input 'product' is not a valid UUID.";
+    throw new InputError("Input 'product' is not a valid UUID.");
   }
   return pid;
 }
@@ -2536,21 +2542,21 @@ function getReleaseType() {
   } else if (RELEASE_TYPE_SET.has(type)) {
     return type;
   }
-  throw `Input 'type' must be one of ${RELEASE_TYPES.join(", ")}, got "${type}"`;
+  throw new InputError(`Input 'type' must be one of ${RELEASE_TYPES.join(", ")}, got "${type}"`);
 }
 function getPath() {
   const path = getInput("path", defaultOptions);
   if (!path.endsWith(".zip")) {
-    throw "Input path must end in .zip";
+    throw new InputError("Input path must end in .zip");
   }
   let stats;
   try {
     stats = (0, import_node_fs.statSync)(path);
   } catch {
-    throw `Input 'path' does not exist: ${path}`;
+    throw new InputError(`Input 'path' does not exist: ${path}`);
   }
   if (!stats.isFile()) {
-    throw `Input 'path' is not a file: ${path}`;
+    throw new InputError(`Input 'path' is not a file: ${path}`);
   }
   return path;
 }
@@ -2760,18 +2766,26 @@ async function main() {
     versionName = resolved[0];
     releaseType = resolved[1];
     path = getPath();
-    archive = fs3.readFileSync(path);
+    archive = await fs3.openAsBlob(path);
     changelog = getChangelog();
     baseUrl = getBaseUrl();
   } catch (err) {
-    setFailed(`An error occured during input processing.
+    if (err instanceof InputError) {
+      setFailed(`An error occurred during input processing.
+${err.message}`);
+    } else {
+      if (err instanceof Error && err.stack) {
+        debug(err.stack);
+      }
+      setFailed(`An error occurred during input processing.
 ${err}`);
+    }
     return;
   }
   let newVersion = new FormData();
   newVersion.append("name", versionName);
   newVersion.append("changelog", changelog);
-  newVersion.append("file", new Blob([archive]), (0, import_node_path.basename)(path));
+  newVersion.append("file", archive, (0, import_node_path.basename)(path));
   newVersion.append("releaseType", releaseType);
   if (!dry) {
     const endpoint = new URL(`products/${product}/versions`, baseUrl);
